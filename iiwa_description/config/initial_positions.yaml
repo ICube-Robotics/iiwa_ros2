@@ -1,0 +1,9 @@
+# Default initial positions for the panda arm's ros2_control fake system
+initial_positions:
+  joint_a1: 0.0
+  joint_a2: -0.7854
+  joint_a3: 0.0
+  joint_a4: 1.3962
+  joint_a5: 0.0
+  joint_a6: 0.6109
+  joint_a7: 0.0

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!-- Kuka iiwa 14 7DoF manipulator -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="iiwa14">
+
+    <!-- Enable setting arguments from the launch file -->
+    <xacro:arg name="use_sim" default="false" />
+    <xacro:arg name="use_fake_hardware" default="true" />
+    <xacro:arg name="prefix" default="" />
+    <xacro:arg name="robot_ip" default="192.170.10.2" />
+    <xacro:arg name="robot_port" default="30200" />
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+    <xacro:arg name="command_interface" default="position" />
+
+    <!-- Import iiwa urdf file -->
+    <xacro:include filename="$(find iiwa_description)/urdf/iiwa14.urdf.xacro" />
+
+    <!-- Import iiwa ros2_control description -->
+    <xacro:include filename="$(find iiwa_description)/ros2_control/iiwa.r2c_hardware.xacro" />
+
+    <!-- Import all Gazebo-customization elements -->
+    <xacro:include filename="$(find iiwa_description)/gazebo/iiwa.gazebo"/>
+
+    <!-- Used for fixing robot -->
+    <link name="world"/>
+    <gazebo reference="world">
+        <static>true</static>
+    </gazebo>
+
+    <xacro:iiwa14 parent="world" prefix="$(arg prefix)">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:iiwa14>
+
+    <xacro:iiwa_r2c_hardware 
+        name="iiwaRobot" prefix="$(arg prefix)"
+        robot_ip="$(arg robot_ip)" robot_port="$(arg robot_port)"
+        command_interface="$(arg command_interface)"
+        initial_positions_file="$(arg initial_positions_file)" 
+        use_sim="$(arg use_sim)" use_fake_hardware="$(arg use_fake_hardware)"
+        />
+</robot>

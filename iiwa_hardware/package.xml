@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>iiwa_hardware</name>
+  <version>0.0.0</version>
+  <description>Driver for the KUKA iiwa robots for ros2_control.</description>
+
+  <author>Maciej Bednarczyk</author>
+  <maintainer email="m.bednarczyk@unistra.fr">m.bednarczyk</maintainer>
+
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>Eigen3</depend>
+  
+  <exec_depend>iiwa_description</exec_depend>
+  <exec_depend>iiwa_bringup</exec_depend>
+
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

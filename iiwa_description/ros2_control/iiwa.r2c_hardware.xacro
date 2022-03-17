@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:macro name="iiwa_r2c_hardware" params="name prefix command_interface robot_ip robot_port initial_positions_file use_sim:=^|false use_fake_hardware:=^|true">
+        <xacro:property name="initial_positions" value="${load_yaml(initial_positions_file)['initial_positions']}"/>
+
+        <ros2_control name="${name}" type="system">
+
+            <xacro:if value="$(arg use_sim)">
+                <hardware>
+                    <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+                </hardware>
+            </xacro:if>
+            <xacro:unless value="$(arg use_sim)">
+                <hardware>
+                <xacro:if value="${use_fake_hardware}">
+                    <plugin>fake_components/GenericSystem</plugin>
+                        <param name="state_following_offset">0.0</param>
+                </xacro:if>
+                <xacro:unless value="${use_fake_hardware}">
+                    <xacro:if value="${command_interface == 'velocity'}">
+                        <plugin>iiwa_hardware/IiwaFRIVelocityHardwareInterface</plugin>
+                    </xacro:if>
+                    <xacro:if value="${command_interface == 'effort'}">
+                        <plugin>iiwa_hardware/IiwaFRIEffortHardwareInterface</plugin>
+                    </xacro:if>
+                    <xacro:if value="${command_interface == 'position'}">
+                        <plugin>iiwa_hardware/IiwaFRIPositionHardwareInterface</plugin>
+                    </xacro:if>
+                    <param name="robot_ip">${robot_ip}</param>
+                    <param name="robot_port">${robot_port}</param>
+                    <param name="velocity_filter_cutoff_freq">40</param>
+                    <param name="torque_filter_cutoff_freq">40</param>
+                </xacro:unless>
+                </hardware>
+            </xacro:unless>
+
+            <joint name="${prefix}joint_a1">
+                <param name="initial_position">${initial_positions['joint_a1']}</param>
+                <command_interface name="${command_interface}" />
+                    <xacro:if value="${command_interface == 'position'}">
+                        <param name="min">-2.96</param>
+                        <param name="max">2.96</param>
+                    </xacro:if>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+            </joint>
+            <joint name="${prefix}joint_a2">
+                <param name="initial_position">${initial_positions['joint_a2']}</param>
+                <command_interface name="${command_interface}" />
+                    <xacro:if value="${command_interface == 'position'}">
+                        <param name="min">-2.09</param>
+                        <param name="max">2.09</param>
+                    </xacro:if>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+            </joint>
+            <joint name="${prefix}joint_a3">
+                <param name="initial_position">${initial_positions['joint_a3']}</param>
+                <command_interface name="${command_interface}" />
+                    <xacro:if value="${command_interface == 'position'}">
+                        <param name="min">-2.96</param>
+                        <param name="max">2.96</param>
+                    </xacro:if>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+            </joint>
+            <joint name="${prefix}joint_a4">
+                <param name="initial_position">${initial_positions['joint_a4']}</param>
+                <command_interface name="${command_interface}" />
+                    <xacro:if value="${command_interface == 'position'}">
+                        <param name="min">-2.09</param>
+                        <param name="max">2.09</param>
+                    </xacro:if>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+            </joint>
+            <joint name="${prefix}joint_a5">
+                <param name="initial_position">${initial_positions['joint_a5']}</param>
+                <command_interface name="${command_interface}" />
+                    <xacro:if value="${command_interface == 'position'}">
+                        <param name="min">-2.96</param>
+                        <param name="max">2.96</param>
+                    </xacro:if>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+            </joint>
+            <joint name="${prefix}joint_a6">
+                <param name="initial_position">${initial_positions['joint_a6']}</param>
+                <command_interface name="${command_interface}" />
+                    <xacro:if value="${command_interface == 'position'}">
+                        <param name="min">-2.09</param>
+                        <param name="max">2.09</param>
+                    </xacro:if>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+            </joint>
+            <joint name="${prefix}joint_a7">
+                <param name="initial_position">${initial_positions['joint_a7']}</param>
+                <command_interface name="${command_interface}" />
+                    <xacro:if value="${command_interface == 'position'}">
+                        <param name="min">-3.05</param>
+                        <param name="max">3.05</param>
+                    </xacro:if>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+            </joint>
+            <sensor name="${prefix}external_torque_sensor">
+                <state_interface name="external_torque.joint_a1"/>
+                <state_interface name="external_torque.joint_a2"/>
+                <state_interface name="external_torque.joint_a3"/>
+                <state_interface name="external_torque.joint_a4"/>
+                <state_interface name="external_torque.joint_a5"/>
+                <state_interface name="external_torque.joint_a6"/>
+                <state_interface name="external_torque.joint_a7"/>
+            </sensor>
+        </ros2_control>
+
+    </xacro:macro>
+
+</robot>

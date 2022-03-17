@@ -1,0 +1,8 @@
+<library path="external_torque_sensor_broadcaster">
+  <class name="external_torque_sensor_broadcaster/ExternalTorqueSensorBroadcaster"
+         type="external_torque_sensor_broadcaster::ExternalTorqueSensorBroadcaster" base_class_type="controller_interface::ControllerInterface">
+  <description>
+    This controller publishes the readings of external joint torque interfaces as std_msgs/Float64MultiArray message.
+  </description>
+  </class>
+</library>
