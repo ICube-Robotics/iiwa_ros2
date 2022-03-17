@@ -21,6 +21,9 @@
   <depend>geometry_msgs</depend>
   <depend>control_msgs</depend>
   <depend>moveit_msgs</depend>
+  <depend>moveit_common</depend>
+  <depend>moveit_core</depend>
+  <depend>moveit_servo</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>

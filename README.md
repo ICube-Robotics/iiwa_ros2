@@ -3,7 +3,7 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 
 ## Features ##
 - integration with `ros2_control`
-- robot drivers for KUKA Fast Robot Interface (FRI) protocol for position, velocity and troque control
+- robot drivers for KUKA Fast Robot Interface (FRI) protocol for position, velocity and torque control
 - dedicated sensors and broadcasters to get data from the robot
 - integration with Gazebo
 - integration with Moveit2
@@ -130,6 +130,7 @@ To do so run `export ROS_DOMAIN_ID= [your_domain_id]`, with `[your_domain_id]` b
 
 ## Contacts ##
 ![icube](https://icube.unistra.fr/fileadmin/templates/DUN/icube/images/logo.png)
+
 [ICube Laboratory](https://plateforme.icube.unistra.fr), [University of Strasbourg](https://www.unistra.fr/), France
 
 __Maciej Bednarczyk:__ [m.bednarczyk@unistra.fr](mailto:m.bednarczyk@unistra.fr), @github: [mcbed](mailto:macbednarczyk@gmail.com)

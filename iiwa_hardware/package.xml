@@ -16,7 +16,9 @@
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
-  <depend>Eigen3</depend>
+  <depend>ros2_control</depend>
+  <depend>ros2_controllers</depend>
+  
   
   <exec_depend>iiwa_description</exec_depend>
   <exec_depend>iiwa_bringup</exec_depend>
