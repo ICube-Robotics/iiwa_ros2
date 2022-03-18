@@ -5,6 +5,7 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 - integration with `ros2_control`
 - robot drivers for KUKA Fast Robot Interface (FRI) protocol for position, velocity and torque control
 - dedicated sensors and broadcasters to get data from the robot
+- dedicated controllers 
 - integration with Gazebo
 - integration with Moveit2
 
@@ -35,7 +36,7 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 4. Pull relevant packages, install dependencies, compile, and source the workspace by using:
     ```shell
     cd ~/ros2_ws
-    git clone https://github.com/ICube-Laboratory/iiwa_ros2.git src/iiwa_ros2
+    git clone https://github.com/ICube-Robotics/iiwa_ros2.git src/iiwa_ros2
     rosdep install --ignore-src --from-paths . -y -r
     colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release --symlink-install
     source install/setup.bash
