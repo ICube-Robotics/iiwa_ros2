@@ -23,7 +23,8 @@ jobs:
           target-ros2-distro: foxy
           package-name: 
             iiwa_bringup
-            iiwa_controllers
+            impedance_controller
+            external_torque_sensor_broadcaster
             iiwa_description
             iiwa_hardware
             iiwa_moveit2
