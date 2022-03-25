@@ -63,7 +63,8 @@ def generate_launch_description():
     }
 
     # Get parameters for the Pose Tracking node
-    pose_tracking_yaml = load_yaml('iiwa_description', 'moveit2/iiwa_moveit2_pose_tracking_settings.yaml')
+    pose_tracking_yaml = load_yaml('iiwa_description', 
+                                    'moveit2/iiwa_moveit2_pose_tracking_settings.yaml')
     pose_tracking_params = {'moveit_servo': pose_tracking_yaml}
 
     # Get parameters for the Servo node
@@ -150,7 +151,8 @@ def generate_launch_description():
     for controller in ['iiwa_arm_controller', 'joint_state_broadcaster', 'ets_state_broadcaster']:
         load_controllers += [
             ExecuteProcess(
-                cmd=['ros2 run controller_manager spawner.py --controller-manager /controller_manager {}'.format(controller)],
+                cmd=['ros2 run controller_manager spawner.py \
+                --controller-manager /controller_manager {}'.format(controller)],
                 shell=True,
                 output='screen',
             )
@@ -166,4 +168,3 @@ def generate_launch_description():
         ]
         + load_controllers
     )
-    
