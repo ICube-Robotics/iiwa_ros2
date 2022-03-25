@@ -21,8 +21,6 @@ from launch_ros.actions import Node
 import xacro
 import yaml
 
-
-
 def load_file(package_name, file_path):
     package_path = get_package_share_directory(package_name)
     absolute_file_path = os.path.join(package_path, file_path)

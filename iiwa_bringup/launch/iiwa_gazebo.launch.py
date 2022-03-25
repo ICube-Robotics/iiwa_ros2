@@ -34,8 +34,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             [PathJoinSubstitution([FindPackageShare('gazebo_ros'), 'launch', 'gazebo.launch.py'])]
         ),
-        launch_arguments={'verbose': 'false',
-                            'world': iiwa_simulation_world}.items(),
+        launch_arguments={'verbose': 'false', 'world': iiwa_simulation_world}.items(),
     )
 
     # Get URDF via xacro
