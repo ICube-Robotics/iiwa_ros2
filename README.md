@@ -1,4 +1,5 @@
 # IIWA_ROS2 #
+[![Build](https://github.com/mcbed/iiwa_ros2/actions/workflows/build.yml/badge.svg)](https://github.com/mcbed/iiwa_ros2/actions/workflows/build.yml)
 ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch and configuration setups to quickly get started using the driver. 
 
 ## Features ##

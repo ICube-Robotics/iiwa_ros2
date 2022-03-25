@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+# ros 2 ci: https://github.com/marketplace/actions/ros-2-ci-action
+# doc: https://ubuntu.com/blog/ros-2-ci-with-github-actions
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - uses: ros-tooling/setup-ros@0.2.2
+        with:
+          required-ros-distributions: foxy
+      - uses: ros-tooling/action-ros-ci@0.2.4
+        with:
+          target-ros2-distro: foxy
+          package-name: 
+            iiwa_bringup
+            iiwa_controllers
+            iiwa_description
+            iiwa_hardware
+            iiwa_moveit2
+          
+      - uses: actions/upload-artifact@v2.3.1
+        with:
+          name: colcon-logs
+          path: ros_ws/log
+        if: always()
