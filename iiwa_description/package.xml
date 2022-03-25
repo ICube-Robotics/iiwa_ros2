@@ -5,7 +5,6 @@
   <version>0.0.0</version>
   <description>Package with description files for a KUKA iiwa robot</description>
   
-  <author>Maciej Bednarczyk</author>
   <maintainer email="m.bednarczyk@unistra.fr">m.bednarczyk</maintainer>
   
   <license>Apache License 2.0</license>
