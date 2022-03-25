@@ -23,19 +23,19 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
 
     position_goals = PathJoinSubstitution(
-        [FindPackageShare("iiwa_bringup"), "config", "test_trajectory_config.yaml"]
+        [FindPackageShare('iiwa_bringup'), 'config', 'test_trajectory_config.yaml']
     )
 
     return LaunchDescription(
         [
             Node(
-                package="ros2_control_test_nodes",
-                executable="publisher_joint_trajectory_controller",
-                name="publisher_joint_trajectory_controller",
+                package='ros2_control_test_nodes',
+                executable='publisher_joint_trajectory_controller',
+                name='publisher_joint_trajectory_controller',
                 parameters=[position_goals],
                 output={
-                    "stdout": "screen",
-                    "stderr": "screen",
+                    'stdout': 'screen',
+                    'stderr': 'screen',
                 },
             )
         ]

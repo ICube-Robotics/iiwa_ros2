@@ -13,17 +13,16 @@
 # limitations under the License.
 
 import os
-import yaml
-from launch import LaunchDescription
-from launch_ros.actions import Node
+
 from ament_index_python.packages import get_package_share_directory
-from launch_ros.actions import ComposableNodeContainer
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch_ros.descriptions import ComposableNode
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.actions import ExecuteProcess
-from launch.substitutions import LaunchConfiguration, ThisLaunchFileDir
+from launch.substitutions import ThisLaunchFileDir
+from launch_ros.actions import ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
 import xacro
+import yaml
 
 
 def load_file(package_name, file_path):
@@ -31,7 +30,7 @@ def load_file(package_name, file_path):
     absolute_file_path = os.path.join(package_path, file_path)
 
     try:
-        with open(absolute_file_path, "r") as file:
+        with open(absolute_file_path, 'r') as file:
             return file.read()
     except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
         return None
@@ -42,7 +41,7 @@ def load_yaml(package_name, file_path):
     absolute_file_path = os.path.join(package_path, file_path)
 
     try:
-        with open(absolute_file_path, "r") as file:
+        with open(absolute_file_path, 'r') as file:
             return yaml.safe_load(file)
     except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
         return None
@@ -50,67 +49,65 @@ def load_yaml(package_name, file_path):
 
 def generate_launch_description():
     # Get parameters for the Servo node
-    servo_yaml = load_yaml("iiwa_description", "moveit2/iiwa_moveit2_servo_config.yaml")
-    servo_params = {"moveit_servo": servo_yaml}
+    servo_yaml = load_yaml('iiwa_description', 'moveit2/iiwa_moveit2_servo_config.yaml')
+    servo_params = {'moveit_servo': servo_yaml}
 
     iiwa_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([ThisLaunchFileDir(), "/iiwa.launch.py"]),
+        PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa.launch.py']),
         launch_arguments={
-            "command_interface": "position",
-            "robot_controller": "iiwa_arm_controller",
+            'command_interface': 'position',
+            'robot_controller': 'iiwa_arm_controller',
         }.items(),
     )
 
     robot_description_config = xacro.process_file(
         os.path.join(
-            get_package_share_directory("iiwa_description"),
-            "config",
-            "iiwa.config.xacro",
+            get_package_share_directory('iiwa_description'),
+            'config',
+            'iiwa.config.xacro',
         )
     )
-    robot_description = {"robot_description": robot_description_config.toxml()}
+    robot_description = {'robot_description': robot_description_config.toxml()}
 
     robot_description_semantic_config = load_file(
-        "iiwa_description", "moveit2/iiwa14.srdf"
+        'iiwa_description', 'moveit2/iiwa14.srdf'
     )
     robot_description_semantic = {
-        "robot_description_semantic": robot_description_semantic_config
+        'robot_description_semantic': robot_description_semantic_config
     }
 
     # Launch as much as possible in components
     container = ComposableNodeContainer(
-        name="moveit_servo_container",
-        namespace="/",
-        package="rclcpp_components",
-        executable="component_container",
+        name='moveit_servo_container',
+        namespace='/',
+        package='rclcpp_components',
+        executable='component_container',
         composable_node_descriptions=[
             ComposableNode(
-                package="moveit_servo",
-                plugin="moveit_servo::ServoServer",
-                name="servo_node",
+                package='moveit_servo',
+                plugin='moveit_servo::ServoServer',
+                name='servo_node',
                 parameters=[
                     servo_params,
                     robot_description,
                     robot_description_semantic,
                 ],
-                extra_arguments=[{"use_intra_process_comms": True}],
+                extra_arguments=[{'use_intra_process_comms': True}],
             ),
             ComposableNode(
-                package="iiwa_moveit2",
-                plugin="iiwa_servo::JoyToServoPub",
-                name="controller_to_servo_node",
-                extra_arguments=[{"use_intra_process_comms": True}],
+                package='iiwa_moveit2',
+                plugin='iiwa_servo::JoyToServoPub',
+                name='controller_to_servo_node',
+                extra_arguments=[{'use_intra_process_comms': True}],
             ),
             ComposableNode(
-                package="joy",
-                plugin="joy::Joy",
-                name="joy_node",
-                extra_arguments=[{"use_intra_process_comms": True}],
+                package='joy',
+                plugin='joy::Joy',
+                name='joy_node',
+                extra_arguments=[{'use_intra_process_comms': True}],
             ),
         ],
-        output="screen",
+        output='screen',
     )
 
-    return LaunchDescription([  container, 
-                                iiwa_launch,
-                                ])
+    return LaunchDescription([container, iiwa_launch, ])
