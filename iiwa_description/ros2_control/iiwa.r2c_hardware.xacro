@@ -18,15 +18,7 @@
                         <param name="state_following_offset">0.0</param>
                 </xacro:if>
                 <xacro:unless value="${use_fake_hardware}">
-                    <xacro:if value="${command_interface == 'velocity'}">
-                        <plugin>iiwa_hardware/IiwaFRIVelocityHardwareInterface</plugin>
-                    </xacro:if>
-                    <xacro:if value="${command_interface == 'effort'}">
-                        <plugin>iiwa_hardware/IiwaFRIEffortHardwareInterface</plugin>
-                    </xacro:if>
-                    <xacro:if value="${command_interface == 'position'}">
-                        <plugin>iiwa_hardware/IiwaFRIPositionHardwareInterface</plugin>
-                    </xacro:if>
+                    <plugin>iiwa_hardware/IiwaFRIHardwareInterface</plugin>
                     <param name="robot_ip">${robot_ip}</param>
                     <param name="robot_port">${robot_port}</param>
                     <param name="velocity_filter_cutoff_freq">40</param>
