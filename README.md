@@ -1,23 +1,23 @@
 # IIWA_ROS2 #
-[![Licence](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
+[![Licence](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build](https://github.com/ICube-Robotics/iiwa_ros2/actions/workflows/build.yaml/badge.svg)](https://github.com/ICube-Robotics/iiwa_ros2/actions/workflows/build.yaml)
 
-ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch and configuration setups to quickly get started using the driver. 
+ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch and configuration setups to quickly get started using the driver.
 
 ## Features ##
 - integration with `ros2_control`
 - robot drivers for KUKA Fast Robot Interface (FRI) protocol for position, velocity and torque control
 - dedicated sensors and broadcasters to get data from the robot
-- dedicated controllers 
+- dedicated controllers
 - integration with Gazebo
 - integration with Moveit2
 
 ## Available Packages in this Repository ##
 - `iiwa_bringup` - launch and run-time configurations
-- `iiwa_controllers` - implementation of dedicated controllers 
+- `iiwa_controllers` - implementation of dedicated controllers
 - `iiwa_description` - robot description and configuration files
 - `iiwa_hardware` - hardware interfaces for communication with the robot
-- `iiwa_moveit2` - some tools for Moveit2 integration 
+- `iiwa_moveit2` - some tools for Moveit2 integration
 
 ## Getting Started
 ***Required setup : Ubuntu 20.04 LTS***
@@ -45,10 +45,10 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
     source install/setup.bash
     ```
 
-## Usage 
+## Usage
 
 :warning: **SAFETY FIRST**:warning:
-*An industrial robot is not a toy and you may harm yourself due to misuse. In general it is best practice to test your code at first in simulation and then in low speed (**T1**) mode. Before using the robot, make yourself familiar with the safety instructions provided by the KUKA manuals.* 
+*An industrial robot is not a toy and you may harm yourself due to misuse. In general it is best practice to test your code at first in simulation and then in low speed (**T1**) mode. Before using the robot, make yourself familiar with the safety instructions provided by the KUKA manuals.*
 
 ### On the Robot side:
 **Step 1:** The used drivers allow the communication with the KUKA *iiwa* robot using KUKA's **Fast Robot Interface (FRI)**. Therefore, the `Fast Robot Interface Extension` needs to be installed and configured on the robot.
@@ -69,12 +69,12 @@ For further instructions concerning the installation and setup of FRI, please re
 - `CLIENT_IP` (default: `192.170.10.5`) - IP of the control PC allowed to send data to the robot.
 - `TS` (default: 5ms) - Communication period. The robot throws an Error if no data recieved during the specified period.
 
-**NOTE:** For torque mode, there has to be a command value at least all 5ms. 
+**NOTE:** For torque mode, there has to be a command value at least all 5ms.
 
 
-**Step 3:** To control the robot using `iiwa_ros2` execute the application on the robot and select the desired control mode. 
+**Step 3:** To control the robot using `iiwa_ros2` execute the application on the robot and select the desired control mode.
 
-**NOTE:** All security modes (T1, T2, AUTO) are supported. 
+**NOTE:** All security modes (T1, T2, AUTO) are supported.
 
 ### On ROS2 side:
 The `iiwa_bringup` package contains 3 launch files: 2 example and the main driver launcher
@@ -83,10 +83,10 @@ The `iiwa_bringup` package contains 3 launch files: 2 example and the main drive
 - `iiwa_pose_tracking.launch.py` - launches a fake robot tracking a pose pusblished in topic `\target_pose` using pose tracking capabilities of`moveit_servo`
 - `iiwa.launch.py` - is the main launcher giving access to all feaures of the driver.
 
-The arguments for launch files can be listed using 
+The arguments for launch files can be listed using
 ```shell
 ros2 launch iiwa_bringup <launch_file_name>.launch.py --show-args
-``` 
+```
 The most relevant arguments of `iiwa.launch.py` are:
 
 - `runtime_config_package` (default: "iiwa_description") - name of the package with the controller's configuration in `config` folder. Usually the argument is not set, it enables use of a custom setup.
@@ -103,22 +103,22 @@ The most relevant arguments of `iiwa.launch.py` are:
 - `initial_positions_file` (default: "initial_positions.yaml") - Configuration file of robot initial positions for simulation.
 - `command_interface` (default: "position") - Robot command interface [position|velocity|effort].
 
-As an example, to run the `velocity_controller` on the real hardware with default ip and port, run 
+As an example, to run the `velocity_controller` on the real hardware with default ip and port, run
 
 ```shell
-ros2 launch iiwa_bringup iiwa.launch.py use_fake_system:="false" command_interface:="velocity" robot_controller:="velocity_controller"
+ros2 launch iiwa_bringup iiwa.launch.py use_fake_hardware:="false" command_interface:="velocity" robot_controller:="velocity_controller"
 ```
 
-**HINT**: list all loaded controllers using `ros2 control list_controllers` command. 
+**HINT**: list all loaded controllers using `ros2 control list_controllers` command.
 
 **NOTE**: The package can simulate hardware with the ros2_control `FakeSystem`. This is the default behavior. This emulator enables an environment for testing of "piping" of hardware and controllers, as well as testing robot's descriptions. For more details see ros2_control documentation for more details.
 
 ### Example commands for setup testing
-1. Start the simulated hardware, in a sourced terminal run 
+1. Start the simulated hardware, in a sourced terminal run
     ```shell
     ros2 launch iiwa_bringup iiwa.launch.py
     ```
-    add the parameter `use_fake_system:="false"` to control the real robot.
+    add the parameter `use_fake_hardware:="false"` to control the real robot.
 2. Send joint trajectory goals to the hardware by using a demo node from [ros2_control_demos](https://github.com/ros-controls/ros2_control_demos) package by running
     ```shell
     ros2 launch iiwa_bringup iiwa_test_joint_trajectory_controller.launch.py
@@ -130,7 +130,7 @@ After a few seconds the robot should move.
 ### Domain setup
 As by default ROS2 streams all data on the network, in order to avoid message interference, it is preferred to isolate the communications by defining domains per project/application.
 
-To do so run `export ROS_DOMAIN_ID= [your_domain_id]`, with `[your_domain_id]` between 0 and 255, before sourcing `/opt/ros/foxy/setup.bash`. 
+To do so run `export ROS_DOMAIN_ID= [your_domain_id]`, with `[your_domain_id]` between 0 and 255, before sourcing `/opt/ros/foxy/setup.bash`.
 
 ## Contacts ##
 ![icube](https://icube.unistra.fr/fileadmin/templates/DUN/icube/images/logo.png)
