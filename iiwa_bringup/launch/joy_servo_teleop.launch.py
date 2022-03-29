@@ -19,8 +19,8 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import ThisLaunchFileDir
-from launch_ros.actions import Node
 from launch_ros.actions import ComposableNodeContainer
+from launch_ros.actions import Node
 from launch_ros.descriptions import ComposableNode
 import xacro
 import yaml
@@ -101,9 +101,9 @@ def generate_launch_description():
     )
 
     servo_node = Node(
-        package="iiwa_moveit2",
-        executable="servo_node",
-        output="screen",
+        package='iiwa_moveit2',
+        executable='servo_node',
+        output='screen',
         parameters=[servo_params, robot_description, robot_description_semantic],
     )
 
