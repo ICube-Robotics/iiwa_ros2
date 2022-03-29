@@ -7,28 +7,13 @@
       KUKA Sunrise.servoing Direct Servo controller.
     </description>
   </class>
-  <class name="iiwa_hardware/IiwaFRIPositionHardwareInterface"
-         type="iiwa_hardware::IiwaFRIPositionHardwareInterface"
+  <class name="iiwa_hardware/IiwaFRIHardwareInterface"
+         type="iiwa_hardware::IiwaFRIHardwareInterface"
          base_class_type="hardware_interface::SystemInterface">
     <description>
-      ROS2 Control System Driver for the KUKA iiwa robot using the position interface. This driver uses the
-      KUKA Fast Robot Interface control protocol.
-    </description>
-  </class>
-  <class name="iiwa_hardware/IiwaFRIVelocityHardwareInterface"
-         type="iiwa_hardware::IiwaFRIVelocityHardwareInterface"
-         base_class_type="hardware_interface::SystemInterface">
-    <description>
-      ROS2 Control System Driver for the KUKA iiwa robot using the velocity interface. This driver uses the
-      KUKA Fast Robot Interface control protocol.
-    </description>
-  </class>
-  <class name="iiwa_hardware/IiwaFRIEffortHardwareInterface"
-         type="iiwa_hardware::IiwaFRIEffortHardwareInterface"
-         base_class_type="hardware_interface::SystemInterface">
-    <description>
-      ROS2 Control System Driver for the KUKA iiwa robot using the effort interface. This driver uses the
-      KUKA Fast Robot Interface control protocol.
+      ROS2 Control System Driver for the KUKA iiwa robot. This driver uses the
+      KUKA Fast Robot Interface control protocol. Position, Velocity and Effort
+      Interfaces are supported, but same for all joints.
     </description>
   </class>
 </library>

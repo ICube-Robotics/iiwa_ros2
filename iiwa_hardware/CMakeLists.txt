@@ -18,11 +18,10 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 
 
-# build libFRI
 # build libFRI
 add_definitions(-DHAVE_SOCKLEN_T
                 -DPB_SYSTEM_HEADER="pb_syshdr.h"
@@ -34,14 +33,15 @@ add_definitions(-DHAVE_SOCKLEN_T
                 -DHAVE_STRING_H
                 -fPIC)
 
-set(FRI_HEADER      external/libFRI/include
-                    external/libFRI/src/protobuf_gen
-                    external/libFRI/src/nanopb-0.2.8
-                    external/libFRI/src/protobuf
-                    external/libFRI/src/connection
-                    external/libFRI/src/client_lbr
-                    external/libFRI/src/base
-                    )
+set(FRI_HEADER
+                  external/libFRI/include
+                  external/libFRI/src/protobuf_gen
+                  external/libFRI/src/nanopb-0.2.8
+                  external/libFRI/src/protobuf
+                  external/libFRI/src/connection
+                  external/libFRI/src/client_lbr
+                  external/libFRI/src/base
+)
 set(FRI_SRC
                       external/libFRI/src/base/friClientApplication.cpp
                       external/libFRI/src/client_lbr/friLBRClient.cpp
@@ -63,11 +63,9 @@ add_library(
   ${PROJECT_NAME}
   SHARED
   src/iiwa_HI_DS.cpp
-  src/IiwaFRIPositionHardwareInterface.cpp
-  src/IiwaFRIVelocityHardwareInterface.cpp
-  src/IiwaFRIEffortHardwareInterface.cpp
-  ${FRI_SRC} 
-  src/IRDFClient.cpp 
+  src/IiwaFRIHardwareInterface.cpp
+  ${FRI_SRC}
+  src/IRDFClient.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}

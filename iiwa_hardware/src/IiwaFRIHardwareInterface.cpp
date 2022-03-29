@@ -1,4 +1,3 @@
-
 // Copyright 2022, ICube Laboratory, University of Strasbourg
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iiwa_hardware/IiwaFRIEffortHardwareInterface.hpp"
+#include "iiwa_hardware/IiwaFRIHardwareInterface.hpp"
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -21,7 +20,7 @@
 namespace iiwa_hardware
 {
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaFRIEffortHardwareInterface::configure(
+hardware_interface::return_type IiwaFRIHardwareInterface::configure(
   const hardware_interface::HardwareInfo & info)
 {
   if (configure_default(info) != hardware_interface::return_type::OK)
@@ -32,9 +31,9 @@ hardware_interface::return_type IiwaFRIEffortHardwareInterface::configure(
   hw_states_position_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_states_velocity_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_states_effort_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-  hw_commands_effort_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-  internal_command_position.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
+  hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_states_external_torque_sensor_.resize(info_.sensors[0].state_interfaces.size(), std::numeric_limits<double>::quiet_NaN());
+  internal_command_position.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
 
   for (const hardware_interface::ComponentInfo & joint : info_.joints)
   {
@@ -42,25 +41,38 @@ hardware_interface::return_type IiwaFRIEffortHardwareInterface::configure(
     if (joint.command_interfaces.size() != 1)
     {
       RCLCPP_FATAL(
-        rclcpp::get_logger("IiwaFRIEffortHardwareInterface"),
+        rclcpp::get_logger("IiwaFRIHardwareInterface"),
         "Joint '%s' has %d command interfaces found. 1 expected.", joint.name.c_str(),
         joint.command_interfaces.size());
       return hardware_interface::return_type::ERROR;
     }
+    if(hw_command_mode_.empty()){
+      hw_command_mode_ = joint.command_interfaces[0].name;
 
-    if (joint.command_interfaces[0].name != hardware_interface::HW_IF_EFFORT)
-    {
+      if (hw_command_mode_ != hardware_interface::HW_IF_POSITION &&
+          hw_command_mode_ != hardware_interface::HW_IF_VELOCITY &&
+          hw_command_mode_ != hardware_interface::HW_IF_EFFORT)
+      {
+        RCLCPP_FATAL(
+          rclcpp::get_logger("IiwaFRIHardwareInterface"),
+          "Joint '%s' have %s unknown command interfaces.", joint.name.c_str(),
+          joint.command_interfaces[0].name.c_str());
+        return hardware_interface::return_type::ERROR;
+      }
+    }
+
+    if(hw_command_mode_ != joint.command_interfaces[0].name){
       RCLCPP_FATAL(
-        rclcpp::get_logger("IiwaFRIEffortHardwareInterface"),
-        "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
-        joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_EFFORT);
-      return hardware_interface::return_type::ERROR;
+          rclcpp::get_logger("IiwaFRIHardwareInterface"),
+          "Joint '%s' has %s command interfaces. Expected %s.", joint.name.c_str(),
+          joint.command_interfaces[0].name.c_str(), hw_command_mode_ );
+        return hardware_interface::return_type::ERROR;
     }
 
     if (joint.state_interfaces.size() != 3)
     {
       RCLCPP_FATAL(
-        rclcpp::get_logger("IiwaFRIEffortHardwareInterface"),
+        rclcpp::get_logger("IiwaFRIHardwareInterface"),
         "Joint '%s' has %d state interface. 3 expected.", joint.name.c_str(),
         joint.state_interfaces.size());
       return hardware_interface::return_type::ERROR;
@@ -69,7 +81,7 @@ hardware_interface::return_type IiwaFRIEffortHardwareInterface::configure(
     if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
     {
       RCLCPP_FATAL(
-        rclcpp::get_logger("IiwaFRIEffortHardwareInterface"),
+        rclcpp::get_logger("IiwaFRIHardwareInterface"),
         "Joint '%s' have %s state interface. '%s' expected.", joint.name.c_str(),
         joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
       return hardware_interface::return_type::ERROR;
@@ -77,7 +89,7 @@ hardware_interface::return_type IiwaFRIEffortHardwareInterface::configure(
     if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
     {
       RCLCPP_FATAL(
-        rclcpp::get_logger("IiwaFRIEffortHardwareInterface"),
+        rclcpp::get_logger("IiwaFRIHardwareInterface"),
         "Joint '%s' have %s state interface. '%s' expected.", joint.name.c_str(),
         joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
       return hardware_interface::return_type::ERROR;
@@ -85,65 +97,72 @@ hardware_interface::return_type IiwaFRIEffortHardwareInterface::configure(
     if (joint.state_interfaces[2].name != hardware_interface::HW_IF_EFFORT)
     {
       RCLCPP_FATAL(
-        rclcpp::get_logger("IiwaFRIEffortHardwareInterface"),
+        rclcpp::get_logger("IiwaFRIHardwareInterface"),
         "Joint '%s' have %s state interface. '%s' expected.", joint.name.c_str(),
         joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_EFFORT);
       return hardware_interface::return_type::ERROR;
     }
   }
-  
+
   status_ = hardware_interface::status::CONFIGURED;
   return hardware_interface::return_type::OK;
 }
   // ------------------------------------------------------------------------------------------
 std::vector<hardware_interface::StateInterface>
-IiwaFRIEffortHardwareInterface::export_state_interfaces()
+IiwaFRIHardwareInterface::export_state_interfaces()
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
   for (uint i = 0; i < info_.joints.size(); i++)
   {
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_states_position_[i]));
-      
+
   }
   for (uint i = 0; i < info_.joints.size(); i++)
   {
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_states_velocity_[i]));
-      
+
   }
   for (uint i = 0; i < info_.joints.size(); i++)
   {
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       info_.joints[i].name, hardware_interface::HW_IF_EFFORT, &hw_states_effort_[i]));
-      
+
   }
   for (uint i = 0; i < info_.sensors[0].state_interfaces.size(); i++)
   {
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       info_.sensors[0].name, info_.sensors[0].state_interfaces[i].name, &hw_states_external_torque_sensor_[i]));
-      
+
   }
 
   return state_interfaces;
 }
   // ------------------------------------------------------------------------------------------
 std::vector<hardware_interface::CommandInterface>
-IiwaFRIEffortHardwareInterface::export_command_interfaces()
+IiwaFRIHardwareInterface::export_command_interfaces()
 {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
   for (uint i = 0; i < info_.joints.size(); i++)
   {
-    command_interfaces.emplace_back(hardware_interface::CommandInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_EFFORT, &hw_commands_effort_[i]));
+    if(hw_command_mode_ == hardware_interface::HW_IF_POSITION)
+      command_interfaces.emplace_back(hardware_interface::CommandInterface(
+        info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_commands_[i]));
+    else if(hw_command_mode_ == hardware_interface::HW_IF_VELOCITY)
+      command_interfaces.emplace_back(hardware_interface::CommandInterface(
+        info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
+    else if(hw_command_mode_ == hardware_interface::HW_IF_EFFORT)
+      command_interfaces.emplace_back(hardware_interface::CommandInterface(
+        info_.joints[i].name, hardware_interface::HW_IF_EFFORT, &hw_commands_[i]));
   }
 
   return command_interfaces;
 }
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaFRIEffortHardwareInterface::start()
+hardware_interface::return_type IiwaFRIHardwareInterface::start()
 {
-    RCLCPP_INFO(rclcpp::get_logger("IiwaFRIEffortHardwareInterface"), "Starting ...please wait...");
+    RCLCPP_INFO(rclcpp::get_logger("IiwaFRIHardwareInterface"), "Starting ...please wait...");
 
     std::string p_ip  = info_.hardware_parameters["robot_ip"];
     int p_port = stoi(info_.hardware_parameters["robot_port"]);
@@ -158,76 +177,84 @@ hardware_interface::return_type IiwaFRIEffortHardwareInterface::start()
       }
     }
 
-    RCLCPP_INFO(rclcpp::get_logger("IiwaFRIEffortHardwareInterface"),"Connecting FRI to port= %i and ip= "+ p_ip, p_port);
+    RCLCPP_INFO(rclcpp::get_logger("IiwaFRIHardwareInterface"),"Connecting FRI to port= %i and ip= "+ p_ip, p_port);
 
     robotClient_.connect(p_port,p_ip.c_str());
 
     status_ = hardware_interface::status::STARTED;
 
-    RCLCPP_INFO(rclcpp::get_logger("IiwaFRIEffortHardwareInterface"), "System Successfully started!");
+    RCLCPP_INFO(rclcpp::get_logger("IiwaFRIHardwareInterface"), "System Successfully started!");
 
     return hardware_interface::return_type::OK;
 }
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaFRIEffortHardwareInterface::stop()
+hardware_interface::return_type IiwaFRIHardwareInterface::stop()
 {
-  RCLCPP_INFO(rclcpp::get_logger("IiwaFRIEffortHardwareInterface"), "Stopping ...please wait...");
+  RCLCPP_INFO(rclcpp::get_logger("IiwaFRIHardwareInterface"), "Stopping ...please wait...");
 
   robotClient_.disconnect();
 
   status_ = hardware_interface::status::STOPPED;
 
   RCLCPP_INFO(
-    rclcpp::get_logger("IiwaFRIEffortHardwareInterface"), "System successfully stopped!");
+    rclcpp::get_logger("IiwaFRIHardwareInterface"), "System successfully stopped!");
 
   return hardware_interface::return_type::OK;
 }
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaFRIEffortHardwareInterface::read()
+hardware_interface::return_type IiwaFRIHardwareInterface::read()
 {
-  
+
     if(status_ != hardware_interface::status::STARTED){
-       RCLCPP_FATAL(rclcpp::get_logger("IiwaFRIEffortHardwareInterface"),"Hardware failed!");
+       RCLCPP_FATAL(rclcpp::get_logger("IiwaFRIHardwareInterface"),"Hardware failed!");
       return hardware_interface::return_type::ERROR;
     }
 
     // TODO read FIR and copy positions to hw_states_
-    if(!robotClient_.updateFromRobot()) 
+    if(!robotClient_.updateFromRobot())
       return hardware_interface::return_type::ERROR;
     if(robotClient_.getCurrentControllerState() != KUKA::FRI::IDLE && robotClient_.getCurrentControllerState() != KUKA::FRI::MONITORING_WAIT){
       robotClient_.getRobotJointPosition(hw_states_position_);
       robotClient_.getRobotJointVelocity(hw_states_velocity_);
-      robotClient_.getRobotJointTorque(hw_states_effort_);  
-      robotClient_.getRobotJointExternalTorque(hw_states_external_torque_sensor_);   
+      robotClient_.getRobotJointTorque(hw_states_effort_);
+      robotClient_.getRobotJointExternalTorque(hw_states_external_torque_sensor_);
 
-      if(internal_command_position[0] != internal_command_position[0] )        
+
+      if(internal_command_position[0] != internal_command_position[0] )
           internal_command_position = hw_states_position_;
     }
 
     return hardware_interface::return_type::OK;
 }
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaFRIEffortHardwareInterface::write()
+hardware_interface::return_type IiwaFRIHardwareInterface::write()
 {
 
   if(status_ != hardware_interface::status::STARTED){
-       RCLCPP_FATAL(rclcpp::get_logger("IiwaFRIEffortHardwareInterface"),"Hardware not started!");
+       RCLCPP_FATAL(rclcpp::get_logger("IiwaFRIHardwareInterface"),"Hardware not started!");
       return hardware_interface::return_type::ERROR;
     }
-  // TODO write hw_commands_ to FRI 
+  // write hw_commands_ to FRI
   bool isNan = false;
-  for ( auto i = 0ul; i < hw_commands_effort_.size(); i++)
-    if (hw_commands_effort_[i] != hw_commands_effort_[i] ) 
+  for (auto i = 0ul; i < hw_commands_.size(); i++)
+    if (hw_commands_[i] != hw_commands_[i] )
       isNan = true;
-  
+
   if(robotClient_.getCurrentControllerState() == KUKA::FRI::COMMANDING_ACTIVE && !isNan){
-    // std::cout << "commanded joint velocity: " << hw_commands_effort_[0] <<", " << hw_commands_effort_[1] <<", " << hw_commands_effort_[2] <<", " << hw_commands_effort_[3] <<", " << hw_commands_effort_[4] <<", " << hw_commands_effort_[5] <<", " << hw_commands_effort_[6] << std::endl;
-    // for (int i = 0; i < hw_commands_effort_.size(); i++)
-      // internal_command_position[i] = internal_command_position[i] + robotClient_.getRobotStatus().sampleTime * hw_commands_effort_[i];
-    robotClient_.setTargetJointTorque(hw_commands_effort_);
-    robotClient_.setTargetJointPosition(hw_states_position_);
+    if(hw_command_mode_ == hardware_interface::HW_IF_POSITION){
+      robotClient_.setTargetJointPosition(hw_commands_);
+    }
+    else if(hw_command_mode_ == hardware_interface::HW_IF_VELOCITY){
+      for (auto i = 0ul; i < hw_commands_.size(); i++)
+        internal_command_position[i] = internal_command_position[i] + robotClient_.getRobotStatus().sampleTime * hw_commands_[i];
+      robotClient_.setTargetJointPosition(internal_command_position);
+    }
+    else if(hw_command_mode_ == hardware_interface::HW_IF_EFFORT){
+      robotClient_.setTargetJointTorque(hw_commands_);
+      robotClient_.setTargetJointPosition(hw_states_position_);
+    }
   }
-  if(!robotClient_.updateToRobot()) 
+  if(!robotClient_.updateToRobot())
       return hardware_interface::return_type::ERROR;
 
   return hardware_interface::return_type::OK;
@@ -238,4 +265,4 @@ hardware_interface::return_type IiwaFRIEffortHardwareInterface::write()
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  iiwa_hardware::IiwaFRIEffortHardwareInterface, hardware_interface::SystemInterface) 
+  iiwa_hardware::IiwaFRIHardwareInterface, hardware_interface::SystemInterface)

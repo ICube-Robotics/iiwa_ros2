@@ -33,10 +33,10 @@
 
 namespace iiwa_hardware
 {
-class IiwaFRIVelocityHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
+class IiwaFRIHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
 {
 public:
-  RCLCPP_SHARED_PTR_DEFINITIONS(IiwaFRIVelocityHardwareInterface);
+  RCLCPP_SHARED_PTR_DEFINITIONS(IiwaFRIHardwareInterface);
 
   IIWA_HARDWARE_PUBLIC
   hardware_interface::return_type configure(const hardware_interface::HardwareInfo & info) override;
@@ -60,20 +60,18 @@ public:
   hardware_interface::return_type write() override;
 
 private:
-  // Communication 
-  KUKA::FRI::IRDFClient robotClient_;         
+  // Communication
+  KUKA::FRI::IRDFClient robotClient_;
 
   // Store the command for the simulated robot
-  std::vector<double> hw_commands_velocity_;
+  std::string hw_command_mode_;
+  std::vector<double> hw_commands_;
   std::vector<double> hw_states_position_;
   std::vector<double> hw_states_velocity_;
   std::vector<double> hw_states_effort_;
   std::vector<double> hw_states_external_torque_sensor_;
-
-
   std::vector<double> internal_command_position;
 
-  
 
 };
 
