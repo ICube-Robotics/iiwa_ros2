@@ -28,19 +28,19 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace iiwa_hardware
 {
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::configure(
+CallbackReturn IiwaDirectServoPositionHardwareInterface::on_init(
   const hardware_interface::HardwareInfo & info)
 {
-  if (configure_default(info) != hardware_interface::return_type::OK)
-  {
-    return hardware_interface::return_type::ERROR;
-  }
+  if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
+{
+  return CallbackReturn::ERROR;
+}
+
 
   hw_states_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
@@ -54,7 +54,7 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::config
         rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"),
         "Joint '%s' has %d command interfaces found. 1 expected.", joint.name.c_str(),
         joint.command_interfaces.size());
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.command_interfaces[0].name != hardware_interface::HW_IF_POSITION)
@@ -63,7 +63,7 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::config
         rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"),
         "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
         joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces.size() != 1)
@@ -72,7 +72,7 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::config
         rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"),
         "Joint '%s' has %d state interface. 1 expected.", joint.name.c_str(),
         joint.state_interfaces.size());
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
@@ -81,14 +81,13 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::config
         rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"),
         "Joint '%s' have %s state interface. '%s' expected.", joint.name.c_str(),
         joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
   }
 
   socketConnected_ = false;
 
-  status_ = hardware_interface::status::CONFIGURED;
-  return hardware_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
   // ------------------------------------------------------------------------------------------
 std::vector<hardware_interface::StateInterface>
@@ -117,14 +116,14 @@ IiwaDirectServoPositionHardwareInterface::export_command_interfaces()
   return command_interfaces;
 }
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::start()
+CallbackReturn IiwaDirectServoPositionHardwareInterface::on_activate(const rclcpp_lifecycle::State & previous_state)
 {
   RCLCPP_INFO(rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "Starting ...please wait...");
 
   std::string p_ip  = info_.hardware_parameters["robot_ip"];
   int p_port = stoi(info_.hardware_parameters["robot_port"]);
 
-  RCLCPP_INFO(rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"),"Connecting to port= %i and ip= "+ p_ip, p_port);
+  RCLCPP_INFO(rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"),"Connecting to port= %i and ip= %s", p_port, p_ip);
 
 
   // IP address, port, etc., setting
@@ -149,7 +148,7 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::start(
       RCLCPP_FATAL(
         rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"),
         "ERROR: socket unsuccessful");
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
   }
 
   struct timeval tv;
@@ -159,22 +158,22 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::start(
       RCLCPP_FATAL(
         rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"),
         "ERROR: setsockopt unsuccessful : %i ", err);
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
   }
 
-  if (bind(destSocket_, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0) 
-    { 
+  if (bind(destSocket_, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
+    {
       RCLCPP_FATAL(
         rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"),
-        "ERROR: Bind failed"); 
-      return hardware_interface::return_type::ERROR;
-    } 
+        "ERROR: Bind failed");
+      return CallbackReturn::ERROR;
+    }
 
   std::ostringstream vts;
   if (!hw_commands_.empty()){
     std::copy(hw_commands_.begin(), hw_commands_.end()-1, std::ostream_iterator<int>(vts, ","));
     vts << hw_commands_.back();
-  }    
+  }
   std::string msg_data_send = ">iiwa_joint_goal," + vts.str();
 
   while(!socketConnected_){
@@ -182,13 +181,13 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::start(
     if (socket_status_ != msg_data_send.length()) {
         RCLCPP_FATAL(
           rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "ERROR: sendto unsuccessful in first send.");
-        return hardware_interface::return_type::ERROR;
+        return CallbackReturn::ERROR;
     }
     socket_status_=recvfrom(destSocket_, buffer_, MAXBUFLEN, NO_FLAGS_SET, reinterpret_cast<sockaddr*>(&destSockAddr_from_) ,&fromlen_);
     if (socket_status_ == SOCKET_ERROR) {
         RCLCPP_FATAL(
           rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "ERROR: recvfrom unsuccessful in first recv.");
-        return hardware_interface::return_type::ERROR;
+        return CallbackReturn::ERROR;
     }
     else if(socket_status_ > 0){
       std::cout << "got data: " << buffer_ << std::endl;
@@ -196,7 +195,7 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::start(
       std::vector <std::string> pack;
       boost::split(pack,buffer_,boost::is_any_of(">"));
       std::cout << "pack data: " << pack.size() << std::endl;
-  
+
       std::vector <std::string> state_elements;
       boost::split(state_elements,pack[1],boost::is_any_of(","));
       if(state_elements[0] == "iiwa_joint_state" && state_elements.size() == hw_states_.size()+1)
@@ -209,15 +208,13 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::start(
 
   hw_commands_ = hw_states_;
 
-  status_ = hardware_interface::status::STARTED;
-
   RCLCPP_INFO(
     rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "System Successfully started!");
 
-  return hardware_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::stop()
+CallbackReturn IiwaDirectServoPositionHardwareInterface::on_deactivate(const rclcpp_lifecycle::State & previous_state)
 {
   RCLCPP_INFO(rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "Stopping ...please wait...");
 
@@ -228,15 +225,13 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::stop()
   if (socket_status_ != msg_data_send.length()) {
       RCLCPP_FATAL(
         rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "ERROR: sendto unsuccessful.");
-      return hardware_interface::return_type::ERROR;
+      return CallbackReturn::ERROR;
   }
-
-  status_ = hardware_interface::status::STOPPED;
 
   RCLCPP_INFO(
     rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "System successfully stopped!");
 
-  return hardware_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
   // ------------------------------------------------------------------------------------------
 hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::read()
@@ -255,7 +250,7 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::read()
       boost::split(state_elements,pack[1],boost::is_any_of(","));
       if(state_elements[0] == "iiwa_joint_state" && state_elements.size() == hw_states_.size()+1)
           for(int i=1;i<state_elements.size();i++) hw_states_[i-1]=atof(state_elements[i].c_str());
- 
+
   // RCLCPP_INFO(rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "Joints successfully read!");
 
   return hardware_interface::return_type::OK;
@@ -269,7 +264,7 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::write(
   if (!hw_commands_.empty()){
     std::copy(hw_commands_.begin(), hw_commands_.end()-1, std::ostream_iterator<double>(vts, ","));
     vts << hw_commands_.back();
-  }    
+  }
   std::string msg_data_send = ">iiwa_joint_goal," + vts.str();
 
   socket_status_=sendto(destSocket_, msg_data_send.c_str(), msg_data_send.length(), NO_FLAGS_SET, reinterpret_cast<const sockaddr*>( &destSockAddr_to_), sizeof(destSockAddr_to_));
@@ -280,7 +275,7 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::write(
   }
 
   // std::cout << "Sending: " << msg_data_send << std::endl;
- 
+
   // RCLCPP_INFO(
   //   rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "Sending: %s",msg_data_send);
 
@@ -292,4 +287,4 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::write(
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  iiwa_hardware::IiwaDirectServoPositionHardwareInterface, hardware_interface::SystemInterface) 
+  iiwa_hardware::IiwaDirectServoPositionHardwareInterface, hardware_interface::SystemInterface)
