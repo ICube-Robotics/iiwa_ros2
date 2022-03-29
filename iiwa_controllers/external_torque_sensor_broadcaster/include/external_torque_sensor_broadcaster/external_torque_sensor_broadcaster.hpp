@@ -38,7 +38,7 @@ public:
   ExternalTorqueSensorBroadcaster();
 
   EXTERNAL_TORQUE_SENSOR_BROADCASTER_PUBLIC
-  controller_interface::return_type init(const std::string & controller_name) override;
+  CallbackReturn on_init() override;
 
   EXTERNAL_TORQUE_SENSOR_BROADCASTER_PUBLIC
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
@@ -56,7 +56,7 @@ public:
   CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
   EXTERNAL_TORQUE_SENSOR_BROADCASTER_PUBLIC
-  controller_interface::return_type update() override;
+  controller_interface::return_type update(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 protected:
   std::string sensor_name_;
@@ -72,4 +72,3 @@ protected:
 }  // namespace external_torque_sensor_broadcaster
 
 #endif  // EXTERNAL_TORQUE_SENSOR_BROADCASTER__EXTERNAL_TORQUE_SENSOR_BROADCASTER_HPP_
-
