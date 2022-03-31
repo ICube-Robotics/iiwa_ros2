@@ -67,7 +67,7 @@ int main(int argc, char** argv)
   executor.add_node(node);
   std::thread executor_thread([&executor]() { executor.spin(); });
 
-  auto servo_parameters = moveit_servo::ServoParameters::makeServoParameters(node, LOGGER);
+  auto servo_parameters = moveit_servo::ServoParameters::makeServoParameters(node);
   ;
   if (servo_parameters == nullptr)
   {
@@ -165,4 +165,3 @@ int main(int argc, char** argv)
   rclcpp::shutdown();
   return EXIT_SUCCESS;
 }
-

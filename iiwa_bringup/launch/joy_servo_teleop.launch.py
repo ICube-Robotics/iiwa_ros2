@@ -20,6 +20,7 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import ThisLaunchFileDir
 from launch_ros.actions import ComposableNodeContainer
+from launch_ros.actions import Node
 from launch_ros.descriptions import ComposableNode
 import xacro
 import yaml
@@ -30,9 +31,9 @@ def load_file(package_name, file_path):
     absolute_file_path = os.path.join(package_path, file_path)
 
     try:
-        with open(absolute_file_path, 'r') as file:
+        with open(absolute_file_path) as file:
             return file.read()
-    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
+    except OSError:  # parent of IOError, OSError *and* WindowsError where available
         return None
 
 
@@ -41,9 +42,9 @@ def load_yaml(package_name, file_path):
     absolute_file_path = os.path.join(package_path, file_path)
 
     try:
-        with open(absolute_file_path, 'r') as file:
+        with open(absolute_file_path) as file:
             return yaml.safe_load(file)
-    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
+    except OSError:  # parent of IOError, OSError *and* WindowsError where available
         return None
 
 
@@ -84,17 +85,6 @@ def generate_launch_description():
         executable='component_container',
         composable_node_descriptions=[
             ComposableNode(
-                package='moveit_servo',
-                plugin='moveit_servo::ServoServer',
-                name='servo_node',
-                parameters=[
-                    servo_params,
-                    robot_description,
-                    robot_description_semantic,
-                ],
-                extra_arguments=[{'use_intra_process_comms': True}],
-            ),
-            ComposableNode(
                 package='iiwa_moveit2',
                 plugin='iiwa_servo::JoyToServoPub',
                 name='controller_to_servo_node',
@@ -110,4 +100,11 @@ def generate_launch_description():
         output='screen',
     )
 
-    return LaunchDescription([container, iiwa_launch, ])
+    servo_node = Node(
+        package='iiwa_moveit2',
+        executable='servo_node',
+        output='screen',
+        parameters=[servo_params, robot_description, robot_description_semantic],
+    )
+
+    return LaunchDescription([container, servo_node, iiwa_launch, ])

@@ -22,10 +22,10 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 ## Getting Started
 ***Required setup : Ubuntu 20.04 LTS***
 
-1.  Install `ros2` packages. The current developpment is based of `ros2 foxy`. Installation steps are decribed [here](https://docs.ros.org/en/foxy/Installation.html).
+1.  Install `ros2` packages. The current developpment is based of `ros2 galactic`. Installation steps are decribed [here](https://docs.ros.org/en/galactic/Installation.html).
 2. Source your `ros2` environment:
     ```shell
-    source /opt/ros/foxy/setup.bash
+    source /opt/ros/galactic/setup.bash
     ```
     **NOTE**: The ros2 environment needs to be sources in every used terminal. If only one distribution of ros2 is used, it can be added to the `~/.bashrc` file.
 3. Install `colcon` and its extensions :
@@ -130,7 +130,7 @@ After a few seconds the robot should move.
 ### Domain setup
 As by default ROS2 streams all data on the network, in order to avoid message interference, it is preferred to isolate the communications by defining domains per project/application.
 
-To do so run `export ROS_DOMAIN_ID= [your_domain_id]`, with `[your_domain_id]` between 0 and 255, before sourcing `/opt/ros/foxy/setup.bash`.
+To do so run `export ROS_DOMAIN_ID= [your_domain_id]`, with `[your_domain_id]` between 0 and 255.
 
 ## Contacts ##
 ![icube](https://icube.unistra.fr/fileadmin/templates/DUN/icube/images/logo.png)

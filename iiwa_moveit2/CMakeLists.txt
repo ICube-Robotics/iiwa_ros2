@@ -44,9 +44,14 @@ rclcpp_components_register_nodes(${SERVO_CONTROLLER_INPUT} "iiwa_servo::JoyToSer
 add_executable(pose_tracking_servo_node src/pose_tracking_servo.cpp)
 ament_target_dependencies(pose_tracking_servo_node ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
+# Add executable for pose tracking
+add_executable(servo_node src/servo_node.cpp)
+ament_target_dependencies(servo_node ${THIS_PACKAGE_INCLUDE_DEPENDS})
+
 # install executables
 install(TARGETS
   pose_tracking_servo_node
+  servo_node
   DESTINATION lib/${PROJECT_NAME})
 
 # Install Libraries
@@ -63,4 +68,3 @@ ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 ament_package()
-

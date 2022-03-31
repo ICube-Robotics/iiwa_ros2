@@ -24,15 +24,8 @@ ExternalTorqueSensorBroadcaster::ExternalTorqueSensorBroadcaster()
 {
 }
 
-controller_interface::return_type ExternalTorqueSensorBroadcaster::init(
-  const std::string & controller_name)
+CallbackReturn ExternalTorqueSensorBroadcaster::on_init()
 {
-  auto ret = ControllerInterface::init(controller_name);
-  if (ret != controller_interface::return_type::OK)
-  {
-    return ret;
-  }
-
   try
   {
     auto_declare<std::string>("sensor_name", "");
@@ -48,10 +41,10 @@ controller_interface::return_type ExternalTorqueSensorBroadcaster::init(
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return controller_interface::return_type::ERROR;
+    return CallbackReturn::ERROR;
   }
 
-  return controller_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
 CallbackReturn ExternalTorqueSensorBroadcaster::on_configure(
@@ -150,7 +143,7 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_deactivate(
   return CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type ExternalTorqueSensorBroadcaster::update()
+controller_interface::return_type ExternalTorqueSensorBroadcaster::update(const rclcpp::Time & time, const rclcpp::Duration & period)
 {
   if (realtime_publisher_ && realtime_publisher_->trylock())
   {
@@ -168,4 +161,3 @@ controller_interface::return_type ExternalTorqueSensorBroadcaster::update()
 PLUGINLIB_EXPORT_CLASS(
   external_torque_sensor_broadcaster::ExternalTorqueSensorBroadcaster,
   controller_interface::ControllerInterface)
-

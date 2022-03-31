@@ -1,3 +1,17 @@
+// Copyright 2022, ICube Laboratory, University of Strasbourg
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "impedance_controller/impedance_controller.hpp"
 
 #include <algorithm>
@@ -22,18 +36,11 @@ ImpedanceController::ImpedanceController()
 {
 }
 
-controller_interface::return_type ImpedanceController::init(
-  const std::string & controller_name)
+CallbackReturn ImpedanceController::on_init()
 {
-  auto ret = ControllerInterface::init(controller_name);
-  if (ret != controller_interface::return_type::OK)
-  {
-    return ret;
-  }
-
   try
   {
-    // definition of the parameters that need to be queried from the 
+    // definition of the parameters that need to be queried from the
     // controller configuration file with default values
     auto_declare<std::vector<std::string>>("joints", std::vector<std::string>());
     auto_declare<std::vector<double>>("stiffness", std::vector<double>());
@@ -43,10 +50,10 @@ controller_interface::return_type ImpedanceController::init(
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return controller_interface::return_type::ERROR;
+    return CallbackReturn::ERROR;
   }
 
-  return controller_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
 CallbackReturn ImpedanceController::on_configure(
@@ -93,7 +100,7 @@ CallbackReturn ImpedanceController::on_configure(
   RCLCPP_INFO(get_node()->get_logger(), "configure successful");
   return CallbackReturn::SUCCESS;
 }
-// As impedance control targets the effort interface, it can be directly defined here 
+// As impedance control targets the effort interface, it can be directly defined here
 // without the need of getting as parameter. The effort interface is then affected to
 // all controlled joints.
 controller_interface::InterfaceConfiguration
@@ -108,7 +115,7 @@ ImpedanceController::command_interface_configuration() const
   }
   return conf;
 }
-// Impedance control requires both velocity and position states. For this reason 
+// Impedance control requires both velocity and position states. For this reason
 // there can be directly defined here without the need of getting as parameters.
 // The state interfaces are then deployed to all targeted joints.
 controller_interface::InterfaceConfiguration
@@ -176,7 +183,7 @@ CallbackReturn ImpedanceController::on_deactivate(
   return CallbackReturn::SUCCESS;
 }
 // main control loop function getting the state interface and writing to the command interface
-controller_interface::return_type ImpedanceController::update()
+controller_interface::return_type ImpedanceController::update(const rclcpp::Time & time, const rclcpp::Duration & period)
 {
   // getting the data from the subscriber using the rt pipe
   auto proxy = rt_command_ptr_.readFromRT();
@@ -197,23 +204,23 @@ controller_interface::return_type ImpedanceController::update()
   //Impedance control loop
   for (auto index = 0ul; index < joint_names_.size(); ++index)
   {
-    // the stats are given in the same order as defines in state_interface_configuration  
- 
+    // the stats are given in the same order as defines in state_interface_configuration
+
     double q = state_interfaces_[2*index].get_value();
     double qv = state_interfaces_[2*index+1].get_value();
     double qd = (*proxy)->points[0].positions[index];
-    
+
     double qdv = 0;
     if((*proxy)->points[0].velocities.size() == joint_names_.size())
       qdv = (*proxy)->points[0].velocities[index];
-    
+
     double qda = 0;
     if((*proxy)->points[0].accelerations.size() == joint_names_.size())
       qda = (*proxy)->points[0].accelerations[index];
 
     double tau = mass_[index]*qda + stiffness_[index]*(qd-q) + damping_[index]*(qdv-qv);
     command_interfaces_[index].set_value(tau);
-      
+
   }
 
   return controller_interface::return_type::OK;
