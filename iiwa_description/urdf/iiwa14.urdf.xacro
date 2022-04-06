@@ -4,7 +4,7 @@
   <xacro:macro name="iiwa14" params="parent prefix *origin">
 
   <material name="gray">
-    <color rgba="0.5 0.5 0.5 1.0"/> 
+    <color rgba="0.5 0.5 0.5 1.0"/>
   </material>
 
   <link name="${prefix}iiwa_base" type="fixed"/>
@@ -181,49 +181,49 @@
       <parent link="${prefix}link_0"/>
       <child link="${prefix}link_1"/>
       <axis xyz="0 0 1"/>
-      <limit effort="0" lower="-2.9668" upper="2.9668" velocity="1.4834"/>
+      <limit effort="320" lower="-2.9668" upper="2.9668" velocity="1.4834"/>
   </joint>
   <joint name="${prefix}joint_a2" type="revolute">
       <origin rpy="0 0 0" xyz="-0.00043624 0 0.36"/>
       <parent link="${prefix}link_1"/>
       <child link="${prefix}link_2"/>
       <axis xyz="0 1 0"/>
-      <limit effort="0" lower="-2.0942" upper="2.0942" velocity="1.4834"/>
+      <limit effort="320" lower="-2.0942" upper="2.0942" velocity="1.4834"/>
   </joint>
   <joint name="${prefix}joint_a3" type="revolute">
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <parent link="${prefix}link_2"/>
       <child link="${prefix}link_3"/>
       <axis xyz="0 0 1"/>
-      <limit effort="0" lower="-2.9668" upper="2.9668" velocity="1.7452"/>
+      <limit effort="176" lower="-2.9668" upper="2.9668" velocity="1.7452"/>
   </joint>
   <joint name="${prefix}joint_a4" type="revolute">
       <origin rpy="0 0 0" xyz="0.00043624 0 0.42"/>
       <parent link="${prefix}link_3"/>
       <child link="${prefix}link_4"/>
       <axis xyz="0 -1 0"/>
-      <limit effort="0" lower="-2.0942" upper="2.0942" velocity="1.3089"/>
+      <limit effort="176" lower="-2.0942" upper="2.0942" velocity="1.3089"/>
   </joint>
   <joint name="${prefix}joint_a5" type="revolute">
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <parent link="${prefix}link_4"/>
       <child link="${prefix}link_5"/>
       <axis xyz="0 0 1"/>
-      <limit effort="0" lower="-2.9668" upper="2.9668" velocity="2.2688"/>
+      <limit effort="110" lower="-2.9668" upper="2.9668" velocity="2.2688"/>
   </joint>
   <joint name="${prefix}joint_a6" type="revolute">
       <origin rpy="0 0 0" xyz="0 0 0.4"/>
       <parent link="${prefix}link_5"/>
       <child link="${prefix}link_6"/>
       <axis xyz="0 1 0"/>
-      <limit effort="0" lower="-2.0942" upper="2.0942" velocity="2.356"/>
+      <limit effort="40" lower="-2.0942" upper="2.0942" velocity="2.356"/>
   </joint>
   <joint name="${prefix}joint_a7" type="revolute">
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <parent link="${prefix}link_6"/>
       <child link="${prefix}link_7"/>
       <axis xyz="0 0 1"/>
-      <limit effort="0" lower="-3.0541" upper="3.0541" velocity="2.356"/>
+      <limit effort="40" lower="-3.0541" upper="3.0541" velocity="2.356"/>
   </joint>
   <joint name="${prefix}joint_a7-tool0" type="fixed">
       <origin rpy="0 0 0" xyz="0 0 0.154"/>
