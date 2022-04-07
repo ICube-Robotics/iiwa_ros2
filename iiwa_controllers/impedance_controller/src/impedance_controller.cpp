@@ -60,7 +60,7 @@ CallbackReturn ImpedanceController::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   // getting the names of the joints to be controlled
-  joint_names_ = node_->get_parameter("joints").as_string_array();
+  joint_names_ = get_node()->get_parameter("joints").as_string_array();
 
   if (joint_names_.empty())
   {
@@ -68,9 +68,9 @@ CallbackReturn ImpedanceController::on_configure(
     return CallbackReturn::FAILURE;
   }
   // getting the impedance parameters
-  stiffness_ = node_->get_parameter("stiffness").as_double_array();
-  damping_ = node_->get_parameter("damping").as_double_array();
-  mass_ = node_->get_parameter("mass").as_double_array();
+  stiffness_ = get_node()->get_parameter("stiffness").as_double_array();
+  damping_ = get_node()->get_parameter("damping").as_double_array();
+  mass_ = get_node()->get_parameter("mass").as_double_array();
 
   if(stiffness_.empty())
     stiffness_.resize(joint_names_.size(),50.0);
@@ -165,7 +165,7 @@ CallbackReturn ImpedanceController::on_activate(
     command_interfaces_.size() != ordered_interfaces.size())
   {
     RCLCPP_ERROR(
-      node_->get_logger(), "Expected %zu position command interfaces, got %zu", joint_names_.size(),
+      get_node()->get_logger(), "Expected %zu position command interfaces, got %zu", joint_names_.size(),
       ordered_interfaces.size());
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
@@ -197,7 +197,7 @@ controller_interface::return_type ImpedanceController::update(const rclcpp::Time
   //checking proxy data validity
   if ((*proxy)->joint_names.size() != joint_names_.size() ||
       (*proxy)->points[0].positions.size() != joint_names_.size())  {
-    RCLCPP_ERROR_THROTTLE( get_node()->get_logger(), *node_->get_clock(), 1000,"command size does not match number of interfaces");
+    RCLCPP_ERROR_THROTTLE( get_node()->get_logger(), *get_node()->get_clock(), 1000,"command size does not match number of interfaces");
     return controller_interface::return_type::ERROR;
   }
 

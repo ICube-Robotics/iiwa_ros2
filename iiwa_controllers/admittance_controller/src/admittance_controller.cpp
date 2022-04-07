@@ -47,7 +47,7 @@ controller_interface::return_type AdmittanceController::init(
 
   try
   {
-    // definition of the parameters that need to be queried from the 
+    // definition of the parameters that need to be queried from the
     // controller configuration file with default values
     auto_declare<std::vector<std::string>>("joints", std::vector<std::string>());
     auto_declare<std::vector<double>>("stiffness", std::vector<double>());
@@ -68,7 +68,7 @@ CallbackReturn AdmittanceController::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   // getting the names of the joints to be controlled
-  joint_names_ = node_->get_parameter("joints").as_string_array();
+  joint_names_ = get_node()->get_parameter("joints").as_string_array();
 
   if (joint_names_.empty())
   {
@@ -78,9 +78,9 @@ CallbackReturn AdmittanceController::on_configure(
   // getting the admittance parameters
 
   // TODO (mcbed): define damping from damping ratio
-  stiffness_ = node_->get_parameter("stiffness").as_double_array();
-  damping_ = node_->get_parameter("damping").as_double_array();
-  mass_ = node_->get_parameter("mass").as_double_array();
+  stiffness_ = get_node()->get_parameter("stiffness").as_double_array();
+  damping_ = get_node()->get_parameter("damping").as_double_array();
+  mass_ = get_node()->get_parameter("mass").as_double_array();
 
   if(stiffness_.empty())
     stiffness_.resize(joint_names_.size(),50.0);
@@ -102,10 +102,10 @@ CallbackReturn AdmittanceController::on_configure(
     }
   }
 
-  sensor_name_ = node_->get_parameter("sensor_name").as_string();
+  sensor_name_ = get_node()->get_parameter("sensor_name").as_string();
   if (sensor_name_.empty())
   {
-    RCLCPP_ERROR(node_->get_logger(),"'sensor_name' parameter has to be specified.");
+    RCLCPP_ERROR(get_node()->get_logger(),"'sensor_name' parameter has to be specified.");
     return CallbackReturn::FAILURE;
   }
   else
@@ -136,8 +136,8 @@ AdmittanceController::command_interface_configuration() const
   }
   return conf;
 }
-// Admittance control requires both velocity and position states, as well as 
-// interaction force sesning. For this reason there can be directly defined here 
+// Admittance control requires both velocity and position states, as well as
+// interaction force sesning. For this reason there can be directly defined here
 // without the need of getting as parameters.
 // The state interfaces are then deployed to all targeted joints.
 controller_interface::InterfaceConfiguration
@@ -156,7 +156,7 @@ AdmittanceController::state_interface_configuration() const
   {
       conf.names.push_back(sensor_name);
   }
-  
+
   return conf;
 }
 
@@ -193,7 +193,7 @@ CallbackReturn AdmittanceController::on_activate(
     command_interfaces_.size() != ordered_interfaces.size())
   {
     RCLCPP_ERROR(
-      node_->get_logger(), "Expected %zu position command interfaces, got %zu", joint_names_.size(),
+      get_node()->get_logger(), "Expected %zu position command interfaces, got %zu", joint_names_.size(),
       ordered_interfaces.size());
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
@@ -210,7 +210,7 @@ CallbackReturn AdmittanceController::on_deactivate(
   {
       command_interfaces_[index].set_value(0.0);
   }
-  
+
   external_torque_sensor_->release_interfaces();
 
   return CallbackReturn::SUCCESS;
@@ -230,7 +230,7 @@ controller_interface::return_type AdmittanceController::update()
   //checking proxy data validity
   if ((*proxy)->joint_names.size() != joint_names_.size() ||
       (*proxy)->points[0].positions.size() != joint_names_.size())  {
-    RCLCPP_ERROR_THROTTLE( get_node()->get_logger(), *node_->get_clock(), 1000,"command size does not match number of interfaces");
+    RCLCPP_ERROR_THROTTLE( get_node()->get_logger(), *get_node()->get_clock(), 1000,"command size does not match number of interfaces");
     return controller_interface::return_type::ERROR;
   }
 
@@ -239,16 +239,16 @@ controller_interface::return_type AdmittanceController::update()
   //Admittance control loop
   for (auto index = 0ul; index < joint_names_.size(); ++index)
   {
-    // the stats are given in the same order as defines in state_interface_configuration  
- 
+    // the stats are given in the same order as defines in state_interface_configuration
+
     double q = state_interfaces_[2*index].get_value();
     double qv = state_interfaces_[2*index+1].get_value();
     double qd = (*proxy)->points[0].positions[index];
-    
+
     double qdv = 0;
     if((*proxy)->points[0].velocities.size() == joint_names_.size())
       qdv = (*proxy)->points[0].velocities[index];
-    
+
     double qda = 0;
     if((*proxy)->points[0].accelerations.size() == joint_names_.size())
       qda = (*proxy)->points[0].accelerations[index];
@@ -256,7 +256,7 @@ controller_interface::return_type AdmittanceController::update()
     double u = qda + 1/mass_[index]*(stiffness_[index]*(qd-q) + damping_[index]*(qdv-qv) + external_torques[index]);
     // TODO (mcbed): simple or double integration for position or velocity interface
     command_interfaces_[index].set_value(internal_position_[index]);
-      
+
   }
 
   return controller_interface::return_type::OK;

@@ -50,14 +50,14 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_init()
 CallbackReturn ExternalTorqueSensorBroadcaster::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  sensor_name_ = node_->get_parameter("sensor_name").as_string();
-  interface_names_[0] = node_->get_parameter("interface_names.joint_a1").as_string();
-  interface_names_[1] = node_->get_parameter("interface_names.joint_a2").as_string();
-  interface_names_[2] = node_->get_parameter("interface_names.joint_a3").as_string();
-  interface_names_[3] = node_->get_parameter("interface_names.joint_a4").as_string();
-  interface_names_[4] = node_->get_parameter("interface_names.joint_a5").as_string();
-  interface_names_[5] = node_->get_parameter("interface_names.joint_a6").as_string();
-  interface_names_[6] = node_->get_parameter("interface_names.joint_a7").as_string();
+  sensor_name_ = get_node()->get_parameter("sensor_name").as_string();
+  interface_names_[0] = get_node()->get_parameter("interface_names.joint_a1").as_string();
+  interface_names_[1] = get_node()->get_parameter("interface_names.joint_a2").as_string();
+  interface_names_[2] = get_node()->get_parameter("interface_names.joint_a3").as_string();
+  interface_names_[3] = get_node()->get_parameter("interface_names.joint_a4").as_string();
+  interface_names_[4] = get_node()->get_parameter("interface_names.joint_a5").as_string();
+  interface_names_[5] = get_node()->get_parameter("interface_names.joint_a6").as_string();
+  interface_names_[6] = get_node()->get_parameter("interface_names.joint_a7").as_string();
 
   const bool no_interface_names_defined =
     std::count(interface_names_.begin(), interface_names_.end(), "") == 7;
@@ -65,7 +65,7 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_configure(
   if (sensor_name_.empty() && no_interface_names_defined)
   {
     RCLCPP_ERROR(
-      node_->get_logger(),
+      get_node()->get_logger(),
       "'sensor_name' or at least one "
       "'interface_names.joint_a[x]' parameter has to be specified.");
     return CallbackReturn::ERROR;
@@ -74,7 +74,7 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_configure(
   if (!sensor_name_.empty() && !no_interface_names_defined)
   {
     RCLCPP_ERROR(
-      node_->get_logger(),
+      get_node()->get_logger(),
       "both 'sensor_name' and "
       "'interface_names.[force|torque].[x|y|z]' parameters can not be specified together.");
     return CallbackReturn::ERROR;
@@ -96,7 +96,7 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_configure(
   try
   {
     // register ft sensor data publisher
-    sensor_state_publisher_ = node_->create_publisher<std_msgs::msg::Float64MultiArray>(
+    sensor_state_publisher_ = get_node()->create_publisher<std_msgs::msg::Float64MultiArray>(
       "~/external_torques", rclcpp::SystemDefaultsQoS());
     realtime_publisher_ = std::make_unique<StatePublisher>(sensor_state_publisher_);
   }
@@ -108,7 +108,7 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_configure(
     return CallbackReturn::ERROR;
   }
 
-  RCLCPP_DEBUG(node_->get_logger(), "configure successful");
+  RCLCPP_DEBUG(get_node()->get_logger(), "configure successful");
   return CallbackReturn::SUCCESS;
 }
 

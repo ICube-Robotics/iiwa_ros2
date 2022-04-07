@@ -234,7 +234,7 @@ CallbackReturn IiwaDirectServoPositionHardwareInterface::on_deactivate(const rcl
   return CallbackReturn::SUCCESS;
 }
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::read()
+hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   // RCLCPP_INFO(rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "Reading...");
   socket_status_=recvfrom(destSocket_, buffer_, MAXBUFLEN, NO_FLAGS_SET, reinterpret_cast<sockaddr*>(&destSockAddr_from_) ,&fromlen_);
@@ -256,7 +256,7 @@ hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::read()
   return hardware_interface::return_type::OK;
 }
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::write()
+hardware_interface::return_type IiwaDirectServoPositionHardwareInterface::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   // RCLCPP_INFO(rclcpp::get_logger("IiwaDirectServoPositionHardwareInterface"), "Writing...");
 
