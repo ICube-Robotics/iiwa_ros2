@@ -1,5 +1,6 @@
 # IIWA_ROS2 #
 [![Licence](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![DOI](https://zenodo.org/badge/470651211.svg)](https://zenodo.org/badge/latestdoi/470651211)
 [![Build](https://github.com/ICube-Robotics/iiwa_ros2/actions/workflows/build.yaml/badge.svg)](https://github.com/ICube-Robotics/iiwa_ros2/actions/workflows/build.yaml)
 
 ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch and configuration setups to quickly get started using the driver.
