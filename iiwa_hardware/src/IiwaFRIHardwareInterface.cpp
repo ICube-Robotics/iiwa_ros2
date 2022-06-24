@@ -194,7 +194,7 @@ CallbackReturn IiwaFRIHardwareInterface::on_deactivate(const rclcpp_lifecycle::S
   return CallbackReturn::SUCCESS;
 }
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaFRIHardwareInterface::read()
+hardware_interface::return_type IiwaFRIHardwareInterface::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
     // read FIR and copy positions to hw_states_
     if(!robotClient_.updateFromRobot())
@@ -213,7 +213,7 @@ hardware_interface::return_type IiwaFRIHardwareInterface::read()
     return hardware_interface::return_type::OK;
 }
   // ------------------------------------------------------------------------------------------
-hardware_interface::return_type IiwaFRIHardwareInterface::write()
+hardware_interface::return_type IiwaFRIHardwareInterface::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   // write hw_commands_ to FRI
   bool isNan = false;
