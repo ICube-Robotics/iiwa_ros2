@@ -2,35 +2,28 @@ name: Build
 
 on:
   push:
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
-
-# ros 2 ci: https://github.com/marketplace/actions/ros-2-ci-action
-# doc: https://ubuntu.com/blog/ros-2-ci-with-github-actions
+    branches: [ main ]
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+  CI:
+    runs-on: ubuntu-latest
     steps:
-      - uses: ros-tooling/setup-ros@0.2.2
+      - name: Prepare
+        run: |
+          mkdir -p ${{github.workspace}}/src
+      - uses: actions/checkout@v2
         with:
-          required-ros-distributions: galactic
-      - uses: ros-tooling/action-ros-ci@0.2.4
-        with:
-          target-ros2-distro: galactic
-          package-name:
-            iiwa_bringup
-            impedance_controller
-            external_torque_sensor_broadcaster
-            iiwa_description
-            iiwa_hardware
-            iiwa_moveit2
+          path: src/iiwa_ros2
 
-      - uses: actions/upload-artifact@v2.3.1
+      - name: Build
+        uses: addnab/docker-run-action@v3
         with:
-          name: colcon-logs
-          path: ros_ws/log
-        if: always()
+          image: ros:humble
+          options: -v ${{github.workspace}}/:/ros/
+          run: |
+            cd /ros
+            apt update
+            . /opt/ros/humble/setup.sh
+            rosdep install --ignore-src --from-paths . -y -r && \
+            colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
