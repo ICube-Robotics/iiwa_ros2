@@ -184,10 +184,7 @@ def generate_launch_description():
         package='controller_manager',
         executable='ros2_control_node',
         parameters=[robot_description, robot_controllers],
-        output={
-            'stdout': 'screen',
-            'stderr': 'screen',
-        },
+        output='both',
     )
     robot_state_pub_node = Node(
         package='robot_state_publisher',
@@ -206,19 +203,19 @@ def generate_launch_description():
 
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
-        executable='spawner.py',
+        executable='spawner',
         arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
     )
 
     eternal_torque_broadcaster_spawner = Node(
         package='controller_manager',
-        executable='spawner.py',
+        executable='spawner',
         arguments=['ets_state_broadcaster', '--controller-manager', '/controller_manager'],
     )
 
     robot_controller_spawner = Node(
         package='controller_manager',
-        executable='spawner.py',
+        executable='spawner',
         arguments=[robot_controller, '-c', '/controller_manager'],
     )
 
