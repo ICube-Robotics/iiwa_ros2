@@ -23,10 +23,10 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 ## Getting Started
 ***Required setup : Ubuntu 20.04 LTS***
 
-1.  Install `ros2` packages. The current developpment is based of `ros2 galactic`. Installation steps are decribed [here](https://docs.ros.org/en/galactic/Installation.html).
+1.  Install `ros2` packages. The current developpment is based of `ros2 humble`. Installation steps are decribed [here](https://docs.ros.org/en/humble/Installation.html).
 2. Source your `ros2` environment:
     ```shell
-    source /opt/ros/galactic/setup.bash
+    source /opt/ros/humble/setup.bash
     ```
     **NOTE**: The ros2 environment needs to be sources in every used terminal. If only one distribution of ros2 is used, it can be added to the `~/.bashrc` file.
 3. Install `colcon` and its extensions :
