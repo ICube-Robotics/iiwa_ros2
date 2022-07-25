@@ -15,7 +15,7 @@
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, RegisterEventHandler
 from launch.conditions import IfCondition, UnlessCondition
-from launch.event_handlers import OnProcessExit
+from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -249,7 +249,17 @@ def generate_launch_description():
         event_handler=OnProcessExit(
             target_action=spawn_entity,
             on_exit=[joint_state_broadcaster_spawner],
-        )
+        ),
+        condition=IfCondition(use_sim),
+    )
+
+    # Delay `joint_state_broadcaster` after control_node
+    delay_joint_state_broadcaster_spawner_after_control_node = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=control_node,
+            on_start=[joint_state_broadcaster_spawner],
+        ),
+        condition=UnlessCondition(use_sim),
     )
 
     # Delay rviz start after `joint_state_broadcaster`
@@ -273,6 +283,7 @@ def generate_launch_description():
         control_node,
         spawn_entity,
         robot_state_pub_node,
+        delay_joint_state_broadcaster_spawner_after_control_node,
         delay_joint_state_broadcaster_spawner_after_spawn_entity,
         delay_rviz_after_joint_state_broadcaster_spawner,
         external_torque_broadcaster_spawner,
