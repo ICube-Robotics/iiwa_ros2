@@ -120,6 +120,13 @@ def generate_launch_description():
             description='Robot command interface [position|velocity|effort].',
         )
     )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'base_frame_file',
+            default_value='base_frame.yaml',
+            description='Configuration file of robot base frame wrt World.',
+        )
+    )
 
     # Initialize Arguments
     runtime_config_package = LaunchConfiguration('runtime_config_package')
@@ -135,6 +142,7 @@ def generate_launch_description():
     robot_port = LaunchConfiguration('robot_port')
     initial_positions_file = LaunchConfiguration('initial_positions_file')
     command_interface = LaunchConfiguration('command_interface')
+    base_frame_file = LaunchConfiguration('base_frame_file')
 
     # Get URDF via xacro
     robot_description_content = Command(
@@ -165,6 +173,9 @@ def generate_launch_description():
             ' ',
             'command_interface:=',
             command_interface,
+            ' ',
+            'base_frame_file:=',
+            base_frame_file,
         ]
     )
     robot_description = {'robot_description': robot_description_content}

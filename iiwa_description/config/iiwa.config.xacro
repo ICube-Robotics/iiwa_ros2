@@ -10,6 +10,7 @@
     <xacro:arg name="robot_port" default="30200" />
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
     <xacro:arg name="command_interface" default="position" />
+    <xacro:arg name="base_frame_file" default="base_frame.yaml" />
 
     <!-- Import iiwa urdf file -->
     <xacro:include filename="$(find iiwa_description)/urdf/iiwa14.urdf.xacro" />
@@ -26,8 +27,11 @@
         <static>true</static>
     </gazebo>
 
+    <xacro:property name="base_frame_file" value="$(arg base_frame_file)"/>
+    <xacro:property name="base_frame" value="${load_yaml(base_frame_file)['base_frame']}"/>
     <xacro:iiwa14 parent="world" prefix="$(arg prefix)">
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="${base_frame['x']} ${base_frame['y']} ${base_frame['z']}"
+            rpy="${base_frame['roll']} ${base_frame['pitch']} ${base_frame['yaw']}" />
     </xacro:iiwa14>
 
     <xacro:iiwa_r2c_hardware 
