@@ -13,11 +13,11 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler
-from launch.conditions import IfCondition
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, RegisterEventHandler
+from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessExit
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
-
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -185,6 +185,7 @@ def generate_launch_description():
         executable='ros2_control_node',
         parameters=[robot_description, robot_controllers],
         output='both',
+        condition=UnlessCondition(use_sim),
     )
     robot_state_pub_node = Node(
         package='robot_state_publisher',
@@ -200,6 +201,29 @@ def generate_launch_description():
         arguments=['-d', rviz_config_file],
         condition=IfCondition(start_rviz),
     )
+    iiwa_simulation_world = PathJoinSubstitution(
+        [FindPackageShare(description_package),
+            'gazebo/worlds', 'empty.world']
+    )
+
+    gazebo = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [PathJoinSubstitution(
+                [FindPackageShare('gazebo_ros'),
+                    'launch', 'gazebo.launch.py']
+            )]
+        ),
+        launch_arguments={'verbose': 'false', 'world': iiwa_simulation_world}.items(),
+        condition=IfCondition(use_sim),
+    )
+
+    spawn_entity = Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py',
+        arguments=['-topic', 'robot_description', '-entity', 'iiwa14'],
+        output='screen',
+        condition=IfCondition(use_sim),
+    )
 
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
@@ -207,16 +231,25 @@ def generate_launch_description():
         arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
     )
 
-    eternal_torque_broadcaster_spawner = Node(
+    external_torque_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
         arguments=['ets_state_broadcaster', '--controller-manager', '/controller_manager'],
+        condition=UnlessCondition(use_sim),
     )
 
     robot_controller_spawner = Node(
         package='controller_manager',
         executable='spawner',
         arguments=[robot_controller, '-c', '/controller_manager'],
+    )
+
+    # Delay `joint_state_broadcaster` after spawn_entity
+    delay_joint_state_broadcaster_spawner_after_spawn_entity = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=spawn_entity,
+            on_exit=[joint_state_broadcaster_spawner],
+        )
     )
 
     # Delay rviz start after `joint_state_broadcaster`
@@ -236,11 +269,13 @@ def generate_launch_description():
     )
 
     nodes = [
+        gazebo,
         control_node,
+        spawn_entity,
         robot_state_pub_node,
-        joint_state_broadcaster_spawner,
+        delay_joint_state_broadcaster_spawner_after_spawn_entity,
         delay_rviz_after_joint_state_broadcaster_spawner,
-        eternal_torque_broadcaster_spawner,
+        external_torque_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
     ]
 
