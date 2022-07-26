@@ -66,6 +66,15 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
+            'namespace',
+            default_value='/',
+            description='Namespace of lauched nodes, useful for multi-robot setup. \
+                        If changed than also the namespace in the controllers \
+                        configuration needs to be updated. Expected format "<ns>/".',
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
             'use_sim',
             default_value='false',
             description='Start robot in Gazebo simulation.',
@@ -143,6 +152,7 @@ def generate_launch_description():
     initial_positions_file = LaunchConfiguration('initial_positions_file')
     command_interface = LaunchConfiguration('command_interface')
     base_frame_file = LaunchConfiguration('base_frame_file')
+    namespace = LaunchConfiguration('namespace')
 
     # Get URDF via xacro
     robot_description_content = Command(
@@ -196,11 +206,13 @@ def generate_launch_description():
         executable='ros2_control_node',
         parameters=[robot_description, robot_controllers],
         output='both',
+        namespace=namespace,
         condition=UnlessCondition(use_sim),
     )
     robot_state_pub_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
+        namespace=namespace,
         output='both',
         parameters=[robot_description],
     )
@@ -239,20 +251,20 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+        arguments=['joint_state_broadcaster', '--controller-manager', [namespace, 'controller_manager']],
     )
 
     external_torque_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['ets_state_broadcaster', '--controller-manager', '/controller_manager'],
+        arguments=['ets_state_broadcaster', '--controller-manager', [namespace, 'controller_manager']],
         condition=UnlessCondition(use_sim),
     )
 
     robot_controller_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=[robot_controller, '-c', '/controller_manager'],
+        arguments=[robot_controller, '-c', [namespace, 'controller_manager']],
     )
 
     # Delay `joint_state_broadcaster` after spawn_entity
