@@ -45,16 +45,16 @@ import com.kuka.grippertoolbox.api.gripper.AbstractGripper;
 /**
  * Implementation of a robot application.
  * <p>
- * The application provides a {@link RoboticsAPITask#initialize()} and a 
- * {@link RoboticsAPITask#run()} method, which will be called successively in 
- * the application lifecycle. The application will terminate automatically after 
- * the {@link RoboticsAPITask#run()} method has finished or after stopping the 
- * task. The {@link RoboticsAPITask#dispose()} method will be called, even if an 
- * exception is thrown during initialization or run. 
+ * The application provides a {@link RoboticsAPITask#initialize()} and a
+ * {@link RoboticsAPITask#run()} method, which will be called successively in
+ * the application lifecycle. The application will terminate automatically after
+ * the {@link RoboticsAPITask#run()} method has finished or after stopping the
+ * task. The {@link RoboticsAPITask#dispose()} method will be called, even if an
+ * exception is thrown during initialization or run.
  * <p>
- * <b>It is imperative to call <code>super.dispose()</code> when overriding the 
- * {@link RoboticsAPITask#dispose()} method.</b> 
- * 
+ * <b>It is imperative to call <code>super.dispose()</code> when overriding the
+ * {@link RoboticsAPITask#dispose()} method.</b>
+ *
  * @see UseRoboticsAPIContext
  * @see #initialize()
  * @see #run()
@@ -66,14 +66,14 @@ public class Iiwa_ros2 extends RoboticsAPIApplication {
     private String _clientName;
     @Inject
     private MediaFlangeIOGroup _medflange;
-    
+
     PositionHold posHold;
     FRIJointOverlay jointOverlay;
 
 	private static final JointPosition INITIAL_POSITION = new JointPosition(0.0,-0.7854,0.0,1.3962,0.0,0.6109,0.0);
     private static final String CLIENT_IP = "192.170.10.5";
 	private static final double TS = 5; //in ms
-    
+
     IFRISessionListener listener = new IFRISessionListener(){
     	@Override
     	public void onFRIConnectionQualityChanged(
@@ -99,18 +99,18 @@ public class Iiwa_ros2 extends RoboticsAPIApplication {
         _clientName = CLIENT_IP;
         _lbr.attachTo(_lbr.getFlange());
 	}
-	
+
 
 	@Override
 	public void run() {
-        // Select the type of control 
+        // Select the type of control
 		String ques = "Select FRI control mode  :\n";
     	double res = getApplicationUI().displayModalDialog(ApplicationDialogType.QUESTION,ques , "POSITION","TORQUE","MONITORING","Cancel");
-    		
+
 		_medflange.setLEDRed(true);
 
 		_lbr.move(ptp(INITIAL_POSITION).setJointVelocityRel(0.2));
-    			
+
 		if(res == 0){
 			PositionControlMode ctrMode = new PositionControlMode();
 			posHold = new PositionHold(ctrMode, -1, TimeUnit.MINUTES);
@@ -121,7 +121,7 @@ public class Iiwa_ros2 extends RoboticsAPIApplication {
 			posHold = new PositionHold(ctrMode, -1, TimeUnit.MINUTES);
 		}
 		else return;
-    		 	
+
         // configure and start FRI session
         FRIConfiguration friConfiguration = FRIConfiguration.createRemoteConfiguration(_lbr, _clientName);
         // for torque mode, there has to be a command value at least all 5ms
@@ -134,7 +134,7 @@ public class Iiwa_ros2 extends RoboticsAPIApplication {
 
         FRISession friSession = new FRISession(friConfiguration);
         friSession.addFRISessionListener(listener);
-        
+
         // wait until FRI session is ready to switch to command mode
         try
         {
@@ -148,9 +148,9 @@ public class Iiwa_ros2 extends RoboticsAPIApplication {
         }
 
         getLogger().info("FRI connection established.");
-        
+
         getLogger().info("Jitter info: " + friSession.getFRIChannelInformation().getJitter());
-        
+
         if(res == 0){
 	    	jointOverlay = new FRIJointOverlay(friSession, ClientCommandMode.POSITION);
 		}
@@ -161,8 +161,8 @@ public class Iiwa_ros2 extends RoboticsAPIApplication {
 			jointOverlay = new FRIJointOverlay(friSession, ClientCommandMode.NO_COMMAND_MODE);
 		}
 		else return;
-     
-        
+
+
         _medflange.setLEDRed(false);
         _medflange.setLEDGreen(true);
         BooleanIOCondition _buttonPressed = new BooleanIOCondition(_medflange.getInput("UserButton"), true);
@@ -176,7 +176,7 @@ public class Iiwa_ros2 extends RoboticsAPIApplication {
         getLogger().info("FRI connection closed.");
         getLogger().info("Application stopped.");
 	}
-	
+
 	public static void main(final String[] args)
     {
         final Iiwa_ros2 app = new Iiwa_ros2();

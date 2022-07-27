@@ -20,7 +20,7 @@ Please try to include as much information as you can. Details like these are inc
 ## Contributing via Pull Requests
 Contributions via pull requests are much appreciated. Before sending us a pull request, please ensure that:
 
-1. You are working against the latest source on the *master* branch.
+1. You are working against the latest source on the *main* branch.
 2. You check existing open, and recently merged, pull requests to make sure someone else hasn't addressed the problem already.
 3. You open an issue to discuss any significant work - we would hate for your time to be wasted.
 
@@ -38,7 +38,7 @@ GitHub provides additional documentation on [forking a repository](https://help.
 
 
 ## Licensing
-Any contribution that you make to this repository will be under the Apache 2 License, as dictated by that [license]:
+Any contribution that you make to this repository will be under the Apache 2 License, as dictated by that [license](http://www.apache.org/licenses/LICENSE-2.0.html):
 
 ~~~
 5. Submission of Contributions. Unless You explicitly state otherwise,

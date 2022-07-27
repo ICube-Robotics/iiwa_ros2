@@ -57,7 +57,7 @@ nanopb-0.2.2 (2013-08-18)
 nanopb-0.2.1 (2013-04-14)
  NOTE: The default callback function signature has changed.
        If you don't want to update your code, define PB_OLD_CALLBACK_STYLE.
- 
+
  Change the callback function to use void** (issue 69)
  Add support for defining the nanopb options in a separate file (issue 12)
  Add support for packed structs in IAR and MSVC (in addition to GCC) (issue 66)

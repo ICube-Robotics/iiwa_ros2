@@ -48,7 +48,7 @@ public:
   }
 
   /// Constructor for ETS with custom interface names.
- 
+
   ExternalTorqueSensor(
     const std::string & interface_torque_a1, const std::string & interface_torque_a2,
     const std::string & interface_torque_a3, const std::string & interface_torque_a4,

@@ -8,9 +8,9 @@ CXX_SRC		 = friMonitoringMessageDecoder.cpp \
 					friCommandMessageEncoder.cpp
 
 INC_DIR		+= $(NANOPB_DIR) $(PROTOBUF_GEN_DIR)
-CFLAGS 		+= 
-CXXFLAGS		+= 
-LDFLAGS 		+= 
+CFLAGS 		+=
+CXXFLAGS		+=
+LDFLAGS 		+=
 
 ################################################################################
 ### Include general makefile (at the end)

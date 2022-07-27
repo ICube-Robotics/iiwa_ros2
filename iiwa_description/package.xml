@@ -4,9 +4,9 @@
   <name>iiwa_description</name>
   <version>0.0.0</version>
   <description>Package with description files for a KUKA iiwa robot</description>
-  
+
   <maintainer email="m.bednarczyk@unistra.fr">m.bednarczyk</maintainer>
-  
+
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

@@ -63,7 +63,7 @@ public:
 
   /**
    * @brief command_interface_configuration This controller requires the position and velocity
-   * state interfaces for the controlled joints. A measurment of the interaction force using a 
+   * state interfaces for the controlled joints. A measurment of the interaction force using a
    * dedicated sensor is also required.
    */
   ADMITTANCE_CONTROLLER_PUBLIC
