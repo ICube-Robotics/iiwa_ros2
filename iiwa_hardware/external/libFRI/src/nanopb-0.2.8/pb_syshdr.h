@@ -6,7 +6,7 @@
  * It is very likely that you will need to customize this file to suit
  * your platform. For any compiler that supports C99, this file should
  * not be necessary.
- * 
+ *
  * KUKA: Added VXWORKS support
  */
 
@@ -73,7 +73,7 @@ typedef int bool;
 #define false 0
 #define true 1
 #endif
-   
+
 #endif // HAVE_STDBOOL_H
 
 /* stdlib.h subset */

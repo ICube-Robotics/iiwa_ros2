@@ -4,8 +4,8 @@ include $(BASE_DIR)/build/GNUMake/$(TOOLS_MAK)
 
 CXX_SRC 		 = friUdpConnection.cpp
 
-CXXFLAGS 	+= 
-LDFLAGS 		+= 
+CXXFLAGS 	+=
+LDFLAGS 		+=
 
 ################################################################################
 ### Include general makefile (at the end)

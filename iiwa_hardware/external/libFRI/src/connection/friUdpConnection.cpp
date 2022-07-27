@@ -14,16 +14,16 @@ code, libraries, binaries, manuals and technical documentation.
 COPYRIGHT
 
 All Rights Reserved
-Copyright (C)  2014-2017 
+Copyright (C)  2014-2017
 KUKA Roboter GmbH
 Augsburg, Germany
 
-LICENSE 
+LICENSE
 
 Redistribution and use of the software in source and binary forms, with or
 without modification, are permitted provided that the following conditions are
 met:
-a) The software is used in conjunction with KUKA products only. 
+a) The software is used in conjunction with KUKA products only.
 b) Redistributions of source code must retain the above copyright notice, this
 list of conditions and the disclaimer.
 c) Redistributions in binary form must reproduce the above copyright notice,
@@ -40,14 +40,14 @@ DISCLAIMER OF WARRANTY
 
 The Software is provided "AS IS" and "WITH ALL FAULTS," without warranty of
 any kind, including without limitation the warranties of merchantability,
-fitness for a particular purpose and non-infringement. 
+fitness for a particular purpose and non-infringement.
 KUKA makes no warranty that the Software is free of defects or is suitable for
 any particular purpose. In no event shall KUKA be responsible for loss or
 damages arising from the installation or use of the Software, including but
 not limited to any indirect, punitive, special, incidental or consequential
 damages of any character including, without limitation, damages for loss of
 goodwill, work stoppage, computer failure or malfunction, or any and all other
-commercial damages or losses. 
+commercial damages or losses.
 The entire risk to the quality and performance of the Software is not borne by
 KUKA. Should the Software prove defective, KUKA is not liable for the entire
 cost of any service and repair.
@@ -78,7 +78,7 @@ cost of any service and repair.
 using namespace KUKA::FRI;
 
 //******************************************************************************
-UdpConnection::UdpConnection(unsigned int receiveTimeout) : 
+UdpConnection::UdpConnection(unsigned int receiveTimeout) :
       _udpSock(-1),
       _receiveTimeout(receiveTimeout)
 {
@@ -87,7 +87,7 @@ UdpConnection::UdpConnection(unsigned int receiveTimeout) :
    WSAStartup(MAKEWORD(2,0), &WSAData);
 #endif
 }
-   
+
 //******************************************************************************
 UdpConnection::~UdpConnection()
 {
@@ -96,7 +96,7 @@ UdpConnection::~UdpConnection()
    WSACleanup();
 #endif
 }
-   
+
 //******************************************************************************
 bool UdpConnection::open(int port, const char *controllerAddress)
 {
@@ -104,7 +104,7 @@ bool UdpConnection::open(int port, const char *controllerAddress)
    memset(&servAddr, 0, sizeof(servAddr));
    memset(&_controllerAddr, 0, sizeof(_controllerAddr));
 
-   
+
    // socket creation
    _udpSock = socket(PF_INET, SOCK_DGRAM, 0);
    if (_udpSock < 0)
@@ -117,7 +117,7 @@ bool UdpConnection::open(int port, const char *controllerAddress)
    servAddr.sin_family = AF_INET;
    servAddr.sin_port = htons(port);
    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-   
+
    if (bind(_udpSock, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
    {
       std::cerr<<"binding port number " << port <<" failed!\n";
@@ -127,7 +127,7 @@ bool UdpConnection::open(int port, const char *controllerAddress)
    // initialize the socket properly
    _controllerAddr.sin_family = AF_INET;
    _controllerAddr.sin_port = htons(port);
-   
+
    if (controllerAddress)
    {
 #ifndef __MINGW32__
@@ -148,7 +148,7 @@ bool UdpConnection::open(int port, const char *controllerAddress)
    }
    return true;
 }
-   
+
 //******************************************************************************
 void UdpConnection::close()
 {
@@ -168,14 +168,14 @@ bool UdpConnection::isOpen() const
 {
    return (_udpSock >= 0);
 }
-   
+
 //******************************************************************************
 int UdpConnection::receive(char *buffer, int maxSize)
 {
    if (isOpen())
    {
       /** HAVE_SOCKLEN_T
-       Yes - unbelievable: There are differences in standard calling parameters (types) to recvfrom 
+       Yes - unbelievable: There are differences in standard calling parameters (types) to recvfrom
        Windows winsock, VxWorks and QNX use int
        newer Posix (most Linuxes) use socklen_t
        */
@@ -188,11 +188,11 @@ int UdpConnection::receive(char *buffer, int maxSize)
       /** check for timeout
        Because SO_RCVTIMEO is in Windows not correctly implemented, select is used for the receive time out.
        If a timeout greater than 0 is given, wait until the timeout is reached or a message was received.
-       If t, abort the function with an error. 
+       If t, abort the function with an error.
        */
       if(_receiveTimeout > 0)
       {
-          
+
           // Set up struct timeval
           struct timeval tv;
           tv.tv_sec = _receiveTimeout / 1000;
@@ -200,7 +200,7 @@ int UdpConnection::receive(char *buffer, int maxSize)
 
           // initialize file descriptor
           /**
-          * Replace FD_ZERO with memset, because bzero is not available for VxWorks 
+          * Replace FD_ZERO with memset, because bzero is not available for VxWorks
           * User Space Aplications(RTPs). Therefore the macro FD_ZERO does not compile.
           */
 #ifndef VXWORKS
@@ -209,7 +209,7 @@ int UdpConnection::receive(char *buffer, int maxSize)
           memset((char *)(&_filedescriptor), 0, sizeof(*(&_filedescriptor)));
 #endif
           FD_SET(_udpSock, &_filedescriptor);
-          
+
           // wait until something was received
           int numberActiveFileDescr = select(_udpSock+1, &_filedescriptor,NULL,NULL,&tv);
           // 0 indicates a timeout
@@ -230,7 +230,7 @@ int UdpConnection::receive(char *buffer, int maxSize)
    }
    return -1;
 }
-   
+
 //******************************************************************************
 bool UdpConnection::send(const char* buffer, int size)
 {

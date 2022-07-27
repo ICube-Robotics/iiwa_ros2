@@ -5,8 +5,8 @@ include $(BASE_DIR)/build/GNUMake/$(TOOLS_MAK)
 CC_SRC 		 = FRIMessages.pb.c
 
 INC_DIR		+= $(NANOPB_DIR)
-CFLAGS 		+= 
-LDFLAGS 		+= 
+CFLAGS 		+=
+LDFLAGS 		+=
 
 ################################################################################
 ### Include general makefile (at the end)

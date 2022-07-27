@@ -82,13 +82,13 @@ public:
 
     /**
        * \brief Connect the FRI client application with a KUKA Sunrise controller.
-       * 
+       *
        * @param port The port ID
        * @param remoteHost The address of the remote host
        * @return True if connection was established
        */
     bool connect(int port, const char *remoteHost = NULL);
-      
+
     /**
      * \brief Disconnect the FRI client application from a KUKA Sunrise controller.
      */
@@ -109,7 +109,7 @@ public:
      * @brief set robot status with target joint torque data
      */
     void setTargetJointTorque(std::vector<double> target_joint_torque);
-    
+
     void getRobotJointPosition(std::vector<double>& jp);
     void getRobotJointVelocity(std::vector<double>& jv);
     void getRobotJointTorque(std::vector<double>& jt);
@@ -145,10 +145,10 @@ protected:
      */
     void updateRobotStatus();
 
-    
 
-    
-    // TODO : allow effort control  
+
+
+    // TODO : allow effort control
     // /**
     //  * @brief set robot status with target joint effort data
     //  */
@@ -169,14 +169,14 @@ private:
     iiwa_status _iiwaStatus;
     int _size;
     UdpConnection _connection;
-    LBRState _robotState;     
-    LBRCommand _robotCommand; 
+    LBRState _robotState;
+    LBRCommand _robotCommand;
     ClientData* _data;
     ESessionState _currentState;
 
     bool _isTargetUpdated;
-      
-    
+
+
 
 };
 

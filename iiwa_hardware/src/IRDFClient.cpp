@@ -32,7 +32,7 @@ IRDFClient::IRDFClient():
     }
 
     _data = new ClientData(NUMBER_OF_JOINTS);
-   
+
    // link monitoring and command message to wrappers
    _robotState._message = &_data->monitoringMsg;
    _robotCommand._cmdMessage = &_data->commandMsg;
@@ -41,7 +41,7 @@ IRDFClient::IRDFClient():
    // set specific message IDs
    _data->expectedMonitorMsgID = _robotState.LBRMONITORMESSAGEID;
    _data->commandMsg.header.messageIdentifier = _robotCommand.LBRCOMMANDMESSAGEID;
-   
+
 
 }
 //*****************************************************************************
@@ -155,7 +155,7 @@ void IRDFClient::setTargetJointPosition(std::vector<double> target_joint_positio
     else{
        _isTargetUpdated = false;
     }
-}   
+}
 //******************************************************************************
 void IRDFClient::setTargetJointTorque(std::vector<double> target_joint_torque){
     if(target_joint_torque.size()==NUMBER_OF_JOINTS){
@@ -163,7 +163,7 @@ void IRDFClient::setTargetJointTorque(std::vector<double> target_joint_torque){
             _iiwaStatus.targetJointTorque[i] = target_joint_torque[i];
         }
     }
-}  
+}
 //******************************************************************************
 iiwa_status IRDFClient::getRobotStatus(){
    return _iiwaStatus;
@@ -191,12 +191,12 @@ void IRDFClient::getRobotJointExternalTorque(std::vector<double>& jet){
 }
 //******************************************************************************
 bool IRDFClient::connect(int port, const char *remoteHost){
-    if (_connection.isOpen()) 
+    if (_connection.isOpen())
     {
         printf("Warning: client application already connected!\n");
         return true;
     }
-    
+
     return _connection.open(port, remoteHost);
 }
 
@@ -220,12 +220,12 @@ bool IRDFClient::updateFromRobot(){
       printf("Error: failed while trying to receive monitoring message!\n");
       return false;
    }
-   
+
    if (!_data->decoder.decode(_data->receiveBuffer, _size))
    {
       return false;
    }
-   
+
    // check message type (so that our wrappers match)
    if (_data->expectedMonitorMsgID != _data->monitoringMsg.header.messageIdentifier)
    {
@@ -233,19 +233,19 @@ bool IRDFClient::updateFromRobot(){
             (int)_data->monitoringMsg.header.messageIdentifier,
             (int)_data->expectedMonitorMsgID);
       return false;
-   }   
-   
+   }
+
    // **************************************************************************
    // callbacks
    // **************************************************************************
    // reset commmand message before callbacks
    _data->resetCommandMessage();
-   
+
    // callbacks for robot client
    _currentState = (ESessionState)_data->monitoringMsg.connectionInfo.sessionState;
 
    // std::cout << currentState << std::endl;
-   
+
    if (_data->lastState != _currentState)
    {
       onStateChange(_data->lastState, _currentState);
@@ -279,29 +279,29 @@ bool IRDFClient::updateToRobot(){
    // **************************************************************************
    // Encode and send command message
    // **************************************************************************
-   
+
    _data->lastSendCounter++;
    // check if its time to send an answer
    if (_data->lastSendCounter >= _data->monitoringMsg.connectionInfo.receiveMultiplier)
    {
       _data->lastSendCounter = 0;
-      
+
       // set sequence counters
       _data->commandMsg.header.sequenceCounter = _data->sequenceCounter++;
-      _data->commandMsg.header.reflectedSequenceCounter = 
+      _data->commandMsg.header.reflectedSequenceCounter =
             _data->monitoringMsg.header.sequenceCounter;
-      
+
       if (!_data->encoder.encode(_data->sendBuffer, _size))
       {
          return false;
       }
-      
+
       if (!_connection.send(_data->sendBuffer, _size))
       {
          printf("Error: failed while trying to send command message!\n");
          return false;
       }
    }
-   
+
    return true;
 }

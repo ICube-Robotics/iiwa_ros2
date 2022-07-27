@@ -7,7 +7,7 @@ CXX_SRC 		 = friLBRClient.cpp \
 			 		friLBRState.cpp
 
 INC_DIR		+= $(CLIENTBASE_DIR) $(NANOPB_DIR) $(PROTOBUF_DIR) $(PROTOBUF_GEN_DIR)
-CXXFLAGS 	+= 
-LDFLAGS 		+= 
+CXXFLAGS 	+=
+LDFLAGS 		+=
 
 include $(BASE_DIR)/build/GNUMake/rules.mak

@@ -1,11 +1,11 @@
-/* This is a headerfile customized for Microsoft Visual Studio 2010 
+/* This is a headerfile customized for Microsoft Visual Studio 2010
  * - based on example of a header file for platforms/compilers that do
  * not come with stdint.h/stddef.h/stdbool.h/string.h. To use it, define
  * PB_SYSTEM_HEADER as "pb_syshdr_win.h", including the quotes, and add the
  * extra folder to your include path.
  *
- *  Authorship: This file was altered/created by KUKA Roboter GmbH, Augsburg, Germany in 2014 
- *  
+ *  Authorship: This file was altered/created by KUKA Roboter GmbH, Augsburg, Germany in 2014
+ *
  */
 
 #ifndef _PB_SYSHDR_WIN_H_

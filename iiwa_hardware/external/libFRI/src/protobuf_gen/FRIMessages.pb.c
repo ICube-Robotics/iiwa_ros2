@@ -123,7 +123,7 @@ const pb_field_t FRICommandMessage_fields[4] = {
 #if !defined(PB_FIELD_32BIT)
 /* If you get an error here, it means that you need to define PB_FIELD_32BIT
  * compile-time option. You can do that in pb.h or on compiler command line.
- * 
+ *
  * The reason you need to do this is that some of your messages contain tag
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
@@ -134,7 +134,7 @@ STATIC_ASSERT((pb_membersize(Transformation, timestamp) < 65536 && pb_membersize
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
 /* If you get an error here, it means that you need to define PB_FIELD_16BIT
  * compile-time option. You can do that in pb.h or on compiler command line.
- * 
+ *
  * The reason you need to do this is that some of your messages contain tag
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
@@ -148,4 +148,3 @@ STATIC_ASSERT((pb_membersize(Transformation, timestamp) < 256 && pb_membersize(M
  * To get rid of this error, remove any double fields from your .proto.
  */
 STATIC_ASSERT(sizeof(double) == 8, DOUBLE_MUST_BE_8_BYTES)
-

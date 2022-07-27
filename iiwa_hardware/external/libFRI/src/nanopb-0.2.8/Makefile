@@ -6,7 +6,7 @@ CC_SRC 		 = pb_encode.c \
 				   pb_decode.c
 
 CFLAGS 		+=
-LDFLAGS 		+= 
+LDFLAGS 		+=
 
 ################################################################################
 ### Include general makefile (at the end)
