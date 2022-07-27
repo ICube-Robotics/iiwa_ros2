@@ -94,7 +94,7 @@ CallbackReturn ImpedanceController::on_configure(
   // the desired position of the proxy point are queried from the proxy topic
   // and passed to update via a rt pipe
   joints_command_subscriber_ = get_node()->create_subscription<CmdType>(
-    "~/proxy", rclcpp::SystemDefaultsQoS(),
+    "/proxy", rclcpp::SystemDefaultsQoS(),
     [this](const CmdType::SharedPtr msg) { rt_command_ptr_.writeFromNonRT(msg); });
 
   RCLCPP_INFO(get_node()->get_logger(), "configure successful");
@@ -143,9 +143,7 @@ bool get_ordered_interfaces(
   {
     for (auto & command_interface : unordered_interfaces)
     {
-      if (
-        (command_interface.get_name() == joint_name) &&
-        (command_interface.get_interface_name() == interface_type))
+      if (command_interface.get_name() == joint_name+"/"+interface_type)
       {
         ordered_interfaces.push_back(std::ref(command_interface));
       }
@@ -161,7 +159,7 @@ CallbackReturn ImpedanceController::on_activate(
   std::vector<std::reference_wrapper<LoanedCommandInterface>> ordered_interfaces;
   if (
     !get_ordered_interfaces(
-      command_interfaces_, joint_names_, hardware_interface::HW_IF_EFFORT, ordered_interfaces) ||
+      command_interfaces_, joint_names_, "effort", ordered_interfaces) ||
     command_interfaces_.size() != ordered_interfaces.size())
   {
     RCLCPP_ERROR(
@@ -183,7 +181,7 @@ CallbackReturn ImpedanceController::on_deactivate(
   return CallbackReturn::SUCCESS;
 }
 // main control loop function getting the state interface and writing to the command interface
-controller_interface::return_type ImpedanceController::update(const rclcpp::Time & time, const rclcpp::Duration & period)
+controller_interface::return_type ImpedanceController::update(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   // getting the data from the subscriber using the rt pipe
   auto proxy = rt_command_ptr_.readFromRT();
