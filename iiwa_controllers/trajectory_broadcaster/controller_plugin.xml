@@ -1,0 +1,8 @@
+<library path="trajectory_broadcaster">
+  <class name="trajectory_broadcaster/TrajectoryBroadcaster"
+         type="trajectory_broadcaster::TrajectoryBroadcaster" base_class_type="controller_interface::ControllerInterface">
+  <description>
+    This controller publishes the joint states as trajectory msgs.
+  </description>
+  </class>
+</library>

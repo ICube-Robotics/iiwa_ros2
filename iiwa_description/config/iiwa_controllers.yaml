@@ -7,7 +7,10 @@ controller_manager:
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-
+    
+    trajectory_broadcaster:
+      type: trajectory_broadcaster/TrajectoryBroadcaster
+    
     velocity_controller:
       type: velocity_controllers/JointGroupVelocityController
 
@@ -37,6 +40,17 @@ iiwa_arm_controller:
     action_monitor_rate: 20.0 # Defaults to 20
 
 velocity_controller:
+  ros__parameters:
+    joints:
+      - joint_a1
+      - joint_a2
+      - joint_a3
+      - joint_a4
+      - joint_a5
+      - joint_a6
+      - joint_a7
+
+trajectory_broadcaster:
   ros__parameters:
     joints:
       - joint_a1
