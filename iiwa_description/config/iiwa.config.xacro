@@ -24,7 +24,7 @@
     <xacro:include filename="$(find ${runtime_config_package})/ros2_control/iiwa.r2c_hardware.xacro" />
 
     <!-- Import all Gazebo-customization elements -->
-    <xacro:include filename="$(find ${runtime_config_package})/gazebo/iiwa.gazebo"/>
+    <xacro:include filename="$(find ${runtime_config_package})/gazebo/iiwa.gazebo.xacro"/>
 
     <!-- Used for fixing robot -->
     <link name="world"/>
@@ -47,10 +47,11 @@
         use_sim="$(arg use_sim)" use_fake_hardware="$(arg use_fake_hardware)"
         />
 
-    <!-- <xacro:iiwa_gazebo 
+    <xacro:iiwa_gazebo 
         runtime_config_package="$(arg runtime_config_package)"
         controllers_file="$(arg controllers_file)"
         namespace="$(arg namespace)"
-        /> -->
+        prefix="$(arg prefix)"
+        />
 
 </robot>

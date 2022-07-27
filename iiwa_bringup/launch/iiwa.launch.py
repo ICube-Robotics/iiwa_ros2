@@ -61,7 +61,7 @@ def generate_launch_description():
             default_value='""',
             description='Prefix of the joint names, useful for multi-robot setup. \
                         If changed than also joint names in the controllers \
-                        configuration have to be updated.',
+                        configuration have to be updated. Expected format "<prefix>/"',
         )
     )
     declared_arguments.append(
@@ -252,7 +252,7 @@ def generate_launch_description():
     spawn_entity = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        arguments=['-topic', 'robot_description', '-entity', 'iiwa14'],
+        arguments=['-topic', [namespace,'robot_description'], '-entity', 'iiwa14'],
         output='screen',
         condition=IfCondition(use_sim),
     )
@@ -273,7 +273,7 @@ def generate_launch_description():
     robot_controller_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=[robot_controller, '-c', [namespace, 'controller_manager']],
+        arguments=[robot_controller, '--controller-manager', [namespace, 'controller_manager']],
     )
 
     # Delay `joint_state_broadcaster` after spawn_entity
