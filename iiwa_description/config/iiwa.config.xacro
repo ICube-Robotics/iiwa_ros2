@@ -11,15 +11,20 @@
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
     <xacro:arg name="command_interface" default="position" />
     <xacro:arg name="base_frame_file" default="base_frame.yaml" />
+    <xacro:arg name="runtime_config_package" default="iiwa_description" />
+    <xacro:arg name="controllers_file" default="iiwa_controllers.yaml" />
+    <xacro:arg name="namespace" default="/" />
+
+    <xacro:property name="runtime_config_package" value="$(arg runtime_config_package)"/>
 
     <!-- Import iiwa urdf file -->
-    <xacro:include filename="$(find iiwa_description)/urdf/iiwa14.urdf.xacro" />
+    <xacro:include filename="$(find ${runtime_config_package})/urdf/iiwa14.urdf.xacro" />
 
     <!-- Import iiwa ros2_control description -->
-    <xacro:include filename="$(find iiwa_description)/ros2_control/iiwa.r2c_hardware.xacro" />
+    <xacro:include filename="$(find ${runtime_config_package})/ros2_control/iiwa.r2c_hardware.xacro" />
 
     <!-- Import all Gazebo-customization elements -->
-    <xacro:include filename="$(find iiwa_description)/gazebo/iiwa.gazebo"/>
+    <xacro:include filename="$(find ${runtime_config_package})/gazebo/iiwa.gazebo"/>
 
     <!-- Used for fixing robot -->
     <link name="world"/>
@@ -41,4 +46,11 @@
         initial_positions_file="$(arg initial_positions_file)" 
         use_sim="$(arg use_sim)" use_fake_hardware="$(arg use_fake_hardware)"
         />
+
+    <!-- <xacro:iiwa_gazebo 
+        runtime_config_package="$(arg runtime_config_package)"
+        controllers_file="$(arg controllers_file)"
+        namespace="$(arg namespace)"
+        /> -->
+
 </robot>

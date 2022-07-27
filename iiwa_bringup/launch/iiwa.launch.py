@@ -186,6 +186,15 @@ def generate_launch_description():
             ' ',
             'base_frame_file:=',
             base_frame_file,
+            ' ',
+            'runtime_config_package:=',
+            runtime_config_package,
+            ' ',
+            'controllers_file:=',
+            controllers_file,
+            ' ',
+            'namespace:=',
+            namespace,
         ]
     )
     robot_description = {'robot_description': robot_description_content}
