@@ -13,11 +13,11 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler
-from launch.conditions import IfCondition
-from launch.event_handlers import OnProcessExit
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, RegisterEventHandler
+from launch.conditions import IfCondition, UnlessCondition
+from launch.event_handlers import OnProcessExit, OnProcessStart
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
-
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -61,7 +61,16 @@ def generate_launch_description():
             default_value='""',
             description='Prefix of the joint names, useful for multi-robot setup. \
                         If changed than also joint names in the controllers \
-                        configuration have to be updated.',
+                        configuration have to be updated. Expected format "<prefix>/"',
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'namespace',
+            default_value='/',
+            description='Namespace of lauched nodes, useful for multi-robot setup. \
+                        If changed than also the namespace in the controllers \
+                        configuration needs to be updated. Expected format "<ns>/".',
         )
     )
     declared_arguments.append(
@@ -120,6 +129,13 @@ def generate_launch_description():
             description='Robot command interface [position|velocity|effort].',
         )
     )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'base_frame_file',
+            default_value='base_frame.yaml',
+            description='Configuration file of robot base frame wrt World.',
+        )
+    )
 
     # Initialize Arguments
     runtime_config_package = LaunchConfiguration('runtime_config_package')
@@ -135,6 +151,8 @@ def generate_launch_description():
     robot_port = LaunchConfiguration('robot_port')
     initial_positions_file = LaunchConfiguration('initial_positions_file')
     command_interface = LaunchConfiguration('command_interface')
+    base_frame_file = LaunchConfiguration('base_frame_file')
+    namespace = LaunchConfiguration('namespace')
 
     # Get URDF via xacro
     robot_description_content = Command(
@@ -165,6 +183,18 @@ def generate_launch_description():
             ' ',
             'command_interface:=',
             command_interface,
+            ' ',
+            'base_frame_file:=',
+            base_frame_file,
+            ' ',
+            'runtime_config_package:=',
+            runtime_config_package,
+            ' ',
+            'controllers_file:=',
+            controllers_file,
+            ' ',
+            'namespace:=',
+            namespace,
         ]
     )
     robot_description = {'robot_description': robot_description_content}
@@ -185,10 +215,13 @@ def generate_launch_description():
         executable='ros2_control_node',
         parameters=[robot_description, robot_controllers],
         output='both',
+        namespace=namespace,
+        condition=UnlessCondition(use_sim),
     )
     robot_state_pub_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
+        namespace=namespace,
         output='both',
         parameters=[robot_description],
     )
@@ -200,23 +233,65 @@ def generate_launch_description():
         arguments=['-d', rviz_config_file],
         condition=IfCondition(start_rviz),
     )
+    iiwa_simulation_world = PathJoinSubstitution(
+        [FindPackageShare(description_package),
+            'gazebo/worlds', 'empty.world']
+    )
+
+    gazebo = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [PathJoinSubstitution(
+                [FindPackageShare('gazebo_ros'),
+                    'launch', 'gazebo.launch.py']
+            )]
+        ),
+        launch_arguments={'verbose': 'false', 'world': iiwa_simulation_world}.items(),
+        condition=IfCondition(use_sim),
+    )
+
+    spawn_entity = Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py',
+        arguments=['-topic', [namespace,'robot_description'], '-entity', 'iiwa14'],
+        output='screen',
+        condition=IfCondition(use_sim),
+    )
 
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+        arguments=['joint_state_broadcaster', '--controller-manager', [namespace, 'controller_manager']],
     )
 
-    eternal_torque_broadcaster_spawner = Node(
+    external_torque_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['ets_state_broadcaster', '--controller-manager', '/controller_manager'],
+        arguments=['ets_state_broadcaster', '--controller-manager', [namespace, 'controller_manager']],
+        condition=UnlessCondition(use_sim),
     )
 
     robot_controller_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=[robot_controller, '-c', '/controller_manager'],
+        arguments=[robot_controller, '--controller-manager', [namespace, 'controller_manager']],
+    )
+
+    # Delay `joint_state_broadcaster` after spawn_entity
+    delay_joint_state_broadcaster_spawner_after_spawn_entity = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=spawn_entity,
+            on_exit=[joint_state_broadcaster_spawner],
+        ),
+        condition=IfCondition(use_sim),
+    )
+
+    # Delay `joint_state_broadcaster` after control_node
+    delay_joint_state_broadcaster_spawner_after_control_node = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=control_node,
+            on_start=[joint_state_broadcaster_spawner],
+        ),
+        condition=UnlessCondition(use_sim),
     )
 
     # Delay rviz start after `joint_state_broadcaster`
@@ -236,11 +311,14 @@ def generate_launch_description():
     )
 
     nodes = [
+        gazebo,
         control_node,
+        spawn_entity,
         robot_state_pub_node,
-        joint_state_broadcaster_spawner,
+        delay_joint_state_broadcaster_spawner_after_control_node,
+        delay_joint_state_broadcaster_spawner_after_spawn_entity,
         delay_rviz_after_joint_state_broadcaster_spawner,
-        eternal_torque_broadcaster_spawner,
+        external_torque_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
     ]
 
