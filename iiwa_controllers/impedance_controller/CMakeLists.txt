@@ -69,4 +69,11 @@ ament_export_include_directories(
 ament_export_libraries(
   impedance_controller
 )
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_package()
