@@ -19,6 +19,6 @@
     <gazebo reference="${prefix}link_7">
       <material>Gazebo/Gray</material>
     </gazebo>
-    
+
   </xacro:macro>
 </robot>

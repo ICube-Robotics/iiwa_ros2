@@ -46,7 +46,7 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
     colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release --symlink-install
     source install/setup.bash
     ```
-**NOTE:** The `iiwa_ros2.repos` file contains links to ros2 packages that need to be source-built to use their newest features. 
+**NOTE:** The `iiwa_ros2.repos` file contains links to ros2 packages that need to be source-built to use their newest features.
 
 ## Usage
 
