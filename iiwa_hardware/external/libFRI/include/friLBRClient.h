@@ -67,20 +67,19 @@ cost of any service and repair.
 /** Kuka namespace */
 namespace KUKA
 {
-namespace FRI
-{
+  namespace FRI
+  {
 
-   /**
-    * \brief Implementation of the IClient interface for the KUKA LBR (lightweight) robots.
-    *
-    * Provides access to the current LBR state and the possibility to send new
-    * commands to the LBR.
-    */
-   class LBRClient : public IClient
-   {
+    /**
+     * \brief Implementation of the IClient interface for the KUKA LBR (lightweight) robots.
+     *
+     * Provides access to the current LBR state and the possibility to send new
+     * commands to the LBR.
+     */
+    class LBRClient: public IClient
+    {
 
-   public:
-
+public:
       /** \brief Constructor. */
       LBRClient();
 
@@ -115,17 +114,16 @@ namespace FRI
        *
        * @return Reference to the LBRState instance
        */
-      const LBRState& robotState() const { return _robotState; }
+      const LBRState & robotState() const {return _robotState;}
 
       /**
        * \brief Provide write access to the robot commands.
        *
        * @return Reference to the LBRCommand instance
        */
-      LBRCommand& robotCommand() { return _robotCommand; }
+      LBRCommand & robotCommand() {return _robotCommand;}
 
-   protected:
-
+protected:
       LBRState _robotState;      //!< wrapper class for the FRI monitoring message
       LBRCommand _robotCommand;  //!< wrapper class for the FRI command message
 
@@ -134,11 +132,11 @@ namespace FRI
        *
        * @return newly allocated client data structure
        */
-      virtual ClientData* createData();
+      virtual ClientData * createData();
 
-   };
+    };
 
-}
+  }
 }
 
 

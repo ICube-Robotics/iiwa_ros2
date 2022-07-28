@@ -39,15 +39,15 @@
             rpy="${base_frame['roll']} ${base_frame['pitch']} ${base_frame['yaw']}" />
     </xacro:iiwa14>
 
-    <xacro:iiwa_r2c_hardware 
+    <xacro:iiwa_r2c_hardware
         name="iiwaRobot" prefix="$(arg prefix)"
         robot_ip="$(arg robot_ip)" robot_port="$(arg robot_port)"
         command_interface="$(arg command_interface)"
-        initial_positions_file="$(arg initial_positions_file)" 
+        initial_positions_file="$(arg initial_positions_file)"
         use_sim="$(arg use_sim)" use_fake_hardware="$(arg use_fake_hardware)"
         />
 
-    <xacro:iiwa_gazebo 
+    <xacro:iiwa_gazebo
         runtime_config_package="$(arg runtime_config_package)"
         controllers_file="$(arg controllers_file)"
         namespace="$(arg namespace)"

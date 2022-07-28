@@ -67,26 +67,25 @@ typedef struct _FRICommandMessage FRICommandMessage;
 /** Kuka namespace */
 namespace KUKA
 {
-namespace FRI
-{
+  namespace FRI
+  {
 
-   /**
-    * \brief Wrapper class for the FRI command message for a KUKA LBR (leightweight) robot.
-    */
-   class LBRCommand
-   {
+    /**
+     * \brief Wrapper class for the FRI command message for a KUKA LBR (lightweight) robot.
+     */
+    class LBRCommand
+    {
       friend class LBRClient;
       friend class IRDFClient;
 
-   public:
-
+public:
       /**
        * \brief Set the joint positions for the current interpolation step.
        *
        * This method is only effective when the client is in a commanding state.
        * @param values Array with the new joint positions (in rad)
        */
-      void setJointPosition(const double* values);
+      void setJointPosition(const double * values);
 
       /**
        * \brief Set the applied wrench vector of the current interpolation step.
@@ -105,7 +104,7 @@ namespace FRI
        *
        * @param wrench Applied Cartesian wrench vector.
        */
-      void setWrench(const double* wrench);
+      void setWrench(const double * wrench);
 
       /**
        * \brief Set the applied joint torques for the current interpolation step.
@@ -116,7 +115,7 @@ namespace FRI
        *
        * @param torques Array with the applied torque values (in Nm)
        */
-      void setTorque(const double* torques);
+      void setTorque(const double * torques);
 
       /**
        * \brief Set boolean output value.
@@ -126,7 +125,7 @@ namespace FRI
        * @param name Full name of the IO (Syntax "IOGroupName.IOName").
        * @param value Boolean value to set.
        */
-      void setBooleanIOValue(const char* name, const bool value);
+      void setBooleanIOValue(const char * name, const bool value);
 
       /**
        * \brief Set digital output value.
@@ -136,7 +135,7 @@ namespace FRI
        * @param name Full name of the IO (Syntax "IOGroupName.IOName").
        * @param value Digital value to set.
        */
-      void setDigitalIOValue(const char* name, const unsigned long long value);
+      void setDigitalIOValue(const char * name, const unsigned long long value);
 
       /**
        * \brief Set analog output value.
@@ -146,17 +145,16 @@ namespace FRI
        * @param name Full name of the IO (Syntax "IOGroupName.IOName").
        * @param value Analog value to set.
        */
-      void setAnalogIOValue(const char* name, const double value);
+      void setAnalogIOValue(const char * name, const double value);
 
-   protected:
-
+protected:
       static const int LBRCOMMANDMESSAGEID = 0x34001; //!< type identifier for the FRI command message corresponding to a KUKA LBR robot
-      FRICommandMessage* _cmdMessage;                 //!< FRI command message (protobuf struct)
-      FRIMonitoringMessage* _monMessage;                 //!< FRI monitoring message (protobuf struct)
+      FRICommandMessage * _cmdMessage;                 //!< FRI command message (protobuf struct)
+      FRIMonitoringMessage * _monMessage;                 //!< FRI monitoring message (protobuf struct)
 
-   };
+    };
 
-}
+  }
 }
 
 

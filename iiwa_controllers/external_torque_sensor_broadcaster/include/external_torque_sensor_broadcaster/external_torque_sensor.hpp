@@ -29,7 +29,8 @@ class ExternalTorqueSensor : public SemanticComponentInterface<std_msgs::msg::Fl
 {
 public:
   /// Constructor for iiwa ETS with 7 values
-  explicit ExternalTorqueSensor(const std::string & name) : SemanticComponentInterface(name, 7)
+  explicit ExternalTorqueSensor(const std::string & name)
+  : SemanticComponentInterface(name, 7)
   {
     // If ETS use standard names
     interface_names_.emplace_back(name_ + "/" + "external_torque.joint_a1");
@@ -57,16 +58,13 @@ public:
   : SemanticComponentInterface("", 7)
   {
     auto check_and_add_interface = [this](const std::string & interface_name, const int index) {
-      if (!interface_name.empty())
-      {
-        interface_names_.emplace_back(interface_name);
-        existing_axes_[index] = true;
-      }
-      else
-      {
-        existing_axes_[index] = false;
-      }
-    };
+        if (!interface_name.empty()) {
+          interface_names_.emplace_back(interface_name);
+          existing_axes_[index] = true;
+        } else {
+          existing_axes_[index] = false;
+        }
+      };
 
     check_and_add_interface(interface_torque_a1, 0);
     check_and_add_interface(interface_torque_a2, 1);
@@ -94,10 +92,8 @@ public:
     // find out how many force interfaces are being used
     // torque interfaces will be found from the next index onward
     auto torque_interface_counter = 0;
-    for (size_t i = 0; i < 7; ++i)
-    {
-      if (existing_axes_[i])
-      {
+    for (size_t i = 0; i < 7; ++i) {
+      if (existing_axes_[i]) {
         torques_[i] = state_interfaces_[torque_interface_counter].get().get_value();
         ++torque_interface_counter;
       }

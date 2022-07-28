@@ -62,7 +62,6 @@ set(FRI_SRC
 add_library(
   ${PROJECT_NAME}
   SHARED
-  src/iiwa_HI_DS.cpp
   src/IiwaFRIHardwareInterface.cpp
   ${FRI_SRC}
   src/IRDFClient.cpp
@@ -97,6 +96,8 @@ install(
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 endif()
 
 ## EXPORTS

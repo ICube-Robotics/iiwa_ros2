@@ -14,17 +14,17 @@
 //
 // Adapted from https://github.com/ros-planning/moveit2_tutorials/blob/galactic/doc/examples/realtime_servo/src/servo_cpp_interface_demo.cpp
 
-#include <rclcpp/rclcpp.hpp>
-
 #include <moveit_servo/servo_parameters.h>
 #include <moveit_servo/servo.h>
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
+
+#include <rclcpp/rclcpp.hpp>
 
 using namespace std::chrono_literals;
 
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("servo_node");
 
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions node_options;
@@ -37,30 +37,28 @@ int main(int argc, char** argv)
 
   auto tf_buffer = std::make_shared<tf2_ros::Buffer>(node->get_clock());
   auto planning_scene_monitor = std::make_shared<planning_scene_monitor::PlanningSceneMonitor>(
-      node, "robot_description", tf_buffer, "planning_scene_monitor");
+    node, "robot_description", tf_buffer, "planning_scene_monitor");
 
-  if (planning_scene_monitor->getPlanningScene())
-  {
+  if (planning_scene_monitor->getPlanningScene()) {
     planning_scene_monitor->startStateMonitor("/joint_states");
     planning_scene_monitor->setPlanningScenePublishingFrequency(25);
-    planning_scene_monitor->startPublishingPlanningScene(planning_scene_monitor::PlanningSceneMonitor::UPDATE_SCENE,
-                                                         "/moveit_servo/publish_planning_scene");
+    planning_scene_monitor->startPublishingPlanningScene(
+      planning_scene_monitor::PlanningSceneMonitor::UPDATE_SCENE,
+      "/moveit_servo/publish_planning_scene");
     planning_scene_monitor->startSceneMonitor();
     planning_scene_monitor->providePlanningSceneService();
-  }
-  else
-  {
+  } else {
     RCLCPP_ERROR(LOGGER, "Planning scene not configured");
     return EXIT_FAILURE;
   }
 
   auto servo_parameters = moveit_servo::ServoParameters::makeServoParameters(node);
-  if (!servo_parameters)
-  {
+  if (!servo_parameters) {
     RCLCPP_FATAL(LOGGER, "Failed to load the servo parameters");
     return EXIT_FAILURE;
   }
-  auto servo = std::make_unique<moveit_servo::Servo>(node, servo_parameters, planning_scene_monitor);
+  auto servo =
+    std::make_unique<moveit_servo::Servo>(node, servo_parameters, planning_scene_monitor);
   servo->start();
 
   auto executor = std::make_unique<rclcpp::executors::MultiThreadedExecutor>();

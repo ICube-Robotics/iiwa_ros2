@@ -23,7 +23,7 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 ## Getting Started
 ***Required setup : Ubuntu 20.04 LTS***
 
-1.  Install `ros2` packages. The current developpment is based of `ros2 humble`. Installation steps are decribed [here](https://docs.ros.org/en/humble/Installation.html).
+1.  Install `ros2` packages. The current development is based of `ros2 humble`. Installation steps are described [here](https://docs.ros.org/en/humble/Installation.html).
 2. Source your `ros2` environment:
     ```shell
     source /opt/ros/humble/setup.bash
@@ -46,7 +46,7 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
     colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release --symlink-install
     source install/setup.bash
     ```
-**NOTE:** The `iiwa_ros2.repos` file contains links to ros2 packages that need to be source-built to use their newest features. 
+**NOTE:** The `iiwa_ros2.repos` file contains links to ros2 packages that need to be source-built to use their newest features.
 
 ## Usage
 
@@ -60,17 +60,17 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 - Robot : `IP = 192.170.10.2`, `SubnetMask = FFFFFF00`
 - Control PC : `IP = 192.170.10.5`, `SubnetMask = FFFFFF00`
 
-For further instructions concerning the installation and setup of FRI, please refere to KUKA FRI documentation.
+For further instructions concerning the installation and setup of FRI, please refer to KUKA FRI documentation.
 
 **Step 2:** This step consists in installing the `iiwa_ros2.java` application from the `iiwa_sunrise` directory in the `application` package of your robot Sunrise Project. This application allows you to establish a communication with the control PC and initialize one of the following control modes:
-- `POSITION` - position and velocity commands can be passed to the robot and exectued, the robot sends its current status
-- `TORQUE` - torque commands can be passed to the robot and exectued, the robot sends its current status
+- `POSITION` - position and velocity commands can be passed to the robot and executed, the robot sends its current status
+- `TORQUE` - torque commands can be passed to the robot and executed, the robot sends its current status
 - `MONITORING` - no commands can be passed to the robot, the robot only sends its current status
 
 **NOTE:** Depending on you application, the following parameters need to be tuned in the application:
 - `INITIAL_POSITION` (default: same as `iiwa_description/config/initial_positions.yaml`) - the initial joint configuration of the robot/
 - `CLIENT_IP` (default: `192.170.10.5`) - IP of the control PC allowed to send data to the robot.
-- `TS` (default: 5ms) - Communication period. The robot throws an Error if no data recieved during the specified period.
+- `TS` (default: 5ms) - Communication period. The robot throws an Error if no data received during the specified period.
 
 **NOTE:** For torque mode, there has to be a command value at least all 5ms.
 
@@ -102,7 +102,7 @@ The most relevant arguments of `iiwa.launch.py` are:
 - `robot_controller` (default: "iiwa_arm_controller") - Robot controller to start.
 - `start_rviz` (default: "true") - Start RViz2 automatically with this launch file.
 - `robot_ip` (default: "192.170.10.2") - Robot IP of FRI interface.
-- `robot_port` (defaut: "30200") - Robot port of FRI interface.
+- `robot_port` (default: "30200") - Robot port of FRI interface.
 - `initial_positions_file` (default: "initial_positions.yaml") - Configuration file of robot initial positions for simulation.
 - `command_interface` (default: "position") - Robot command interface [position|velocity|effort].
 

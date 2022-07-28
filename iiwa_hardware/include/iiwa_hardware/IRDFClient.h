@@ -156,13 +156,13 @@ protected:
 
 private:
     /**
-     * @brief array of commad wrenche for FRI
+     * @brief array of command wrenche for FRI
      */
     double _wrench[WORLD_DOF];
     VectorNJd _prev_q;
     DiscreteTimeLowPassFilter<VectorNJd> _qVel_filter, _trq_filter,_extTrq_filter;
     bool _isFirstUpdate;
-    double _trq_filter_cutoff, _vel_filter_cutoff;
+    double _vel_filter_cutoff, _trq_filter_cutoff;
      /**
      * @brief status structure for information exchange
      */
