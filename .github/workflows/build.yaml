@@ -25,5 +25,6 @@ jobs:
             cd /ros
             apt update
             . /opt/ros/humble/setup.sh
-            rosdep install --ignore-src --from-paths . -y -r && \
+            vcs import < src/iiwa_ros2/iiwa_ros2.repos
+            rosdep install --ignore-src --from-paths . -y -r
             colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
