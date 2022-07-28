@@ -41,10 +41,12 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
     ```shell
     cd ~/ros2_ws
     git clone https://github.com/ICube-Robotics/iiwa_ros2.git src/iiwa_ros2
+    vcs import src < src/iiwa_ros2.repos
     rosdep install --ignore-src --from-paths . -y -r
     colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release --symlink-install
     source install/setup.bash
     ```
+**NOTE:** The `iiwa_ros2.repos` file contains links to ros2 packages that need to be source-built to use their newest features. 
 
 ## Usage
 
