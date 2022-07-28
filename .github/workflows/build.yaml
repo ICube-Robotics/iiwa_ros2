@@ -23,8 +23,23 @@ jobs:
           options: -v ${{github.workspace}}/:/ros/
           run: |
             cd /ros
-            apt update
+            apt update && apt upgrade
             . /opt/ros/humble/setup.sh
             vcs import < src/iiwa_ros2/iiwa_ros2.repos
             rosdep install --ignore-src --from-paths . -y -r
             colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+      - name: Test
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ros:humble
+          options: -v ${{github.workspace}}/:/ros/
+          run: |
+            cd /ros
+            apt update && apt upgrade
+            . /opt/ros/humble/setup.sh
+            vcs import < src/iiwa_ros2/iiwa_ros2.repos
+            rosdep install --ignore-src --from-paths . -y -r
+            colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+            colcon test --packages-skip gazebo_ros2_control
+            colcon test-result
