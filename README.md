@@ -1,7 +1,7 @@
 # IIWA_ROS2 #
 [![Licence](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![DOI](https://zenodo.org/badge/470651211.svg)](https://zenodo.org/badge/latestdoi/470651211)
-[![Build](https://github.com/ICube-Robotics/iiwa_ros2/actions/workflows/build.yaml/badge.svg)](https://github.com/ICube-Robotics/iiwa_ros2/actions/workflows/build.yaml)
+[![CI](https://github.com/ICube-Robotics/iiwa_ros2/actions/workflows/ci.yaml/badge.svg)](https://github.com/ICube-Robotics/iiwa_ros2/actions/workflows/ci.yaml)
 
 ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch and configuration setups to quickly get started using the driver.
 
@@ -21,7 +21,7 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 - `iiwa_moveit2` - some tools for Moveit2 integration
 
 ## Getting Started
-***Required setup : Ubuntu 20.04 LTS***
+***Required setup : Ubuntu 22.04 LTS***
 
 1.  Install `ros2` packages. The current development is based of `ros2 humble`. Installation steps are described [here](https://docs.ros.org/en/humble/Installation.html).
 2. Source your `ros2` environment:
