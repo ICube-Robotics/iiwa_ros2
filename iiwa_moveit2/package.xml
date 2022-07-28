@@ -5,7 +5,6 @@
   <version>0.0.0</version>
   <description>Package with moveit2 nodes</description>
 
-  <author>Maciej Bednarczyk</author>
   <maintainer email="m.bednarczyk@unistra.fr">m.bednarczyk</maintainer>
 
   <license>Apache License 2.0</license>

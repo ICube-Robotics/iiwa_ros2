@@ -55,10 +55,14 @@ public:
   CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
   IIWA_HARDWARE_PUBLIC
-  hardware_interface::return_type read(const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  hardware_interface::return_type read(
+    const rclcpp::Time & time,
+    const rclcpp::Duration & period) override;
 
   IIWA_HARDWARE_PUBLIC
-  hardware_interface::return_type write(const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  hardware_interface::return_type write(
+    const rclcpp::Time & time,
+    const rclcpp::Duration & period) override;
 
 private:
   // Communication

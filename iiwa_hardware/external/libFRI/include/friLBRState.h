@@ -68,22 +68,21 @@ typedef struct _FRIMonitoringMessage FRIMonitoringMessage;
 /** Kuka namespace */
 namespace KUKA
 {
-namespace FRI
-{
+  namespace FRI
+  {
 
-   /**
-    * \brief Wrapper class for the FRI monitoring message for a KUKA LBR (leightweight) robot.
-    */
-   class LBRState
-   {
+    /**
+     * \brief Wrapper class for the FRI monitoring message for a KUKA LBR (lightweight) robot.
+     */
+    class LBRState
+    {
       friend class LBRClient;
       friend class IRDFClient;
 
-   public:
-
+public:
       enum
       {
-          NUMBER_OF_JOINTS = 7      //!< number of axes of the KUKA LBR robot
+        NUMBER_OF_JOINTS = 7        //!< number of axes of the KUKA LBR robot
       };
 
       LBRState();
@@ -181,28 +180,28 @@ namespace FRI
        *
        * @return array of the measured joint positions in radians
        */
-      const double* getMeasuredJointPosition() const;
+      const double * getMeasuredJointPosition() const;
 
       /**
        * \brief Get the last commanded joint positions of the robot.
        *
        * @return array of the commanded joint positions in radians
        */
-      const double* getCommandedJointPosition() const;
+      const double * getCommandedJointPosition() const;
 
       /**
        * \brief Get the currently measured joint torques of the robot.
        *
        * @return array of the measured torques in Nm
        */
-      const double* getMeasuredTorque() const;
+      const double * getMeasuredTorque() const;
 
       /**
        * \brief Get the last commanded joint torques of the robot.
        *
        * @return array of the commanded torques in Nm
        */
-      const double* getCommandedTorque() const;
+      const double * getCommandedTorque() const;
 
       /**
        * \brief Get the currently measured external joint torques of the robot.
@@ -211,7 +210,7 @@ namespace FRI
        * the torques induced by the robot itself.
        * @return array of the external torques in Nm
        */
-      const double* getExternalTorque() const;
+      const double * getExternalTorque() const;
 
       /**
        * \brief Get the joint positions commanded by the interpolator.
@@ -222,7 +221,7 @@ namespace FRI
        * @throw FRIException This method will throw an FRIException during monitoring mode.
        * @return array of the ipo joint positions in radians
        */
-      const double* getIpoJointPosition() const;
+      const double * getIpoJointPosition() const;
 
       /**
        * \brief Get an indicator for the current tracking performance of the commanded robot.
@@ -246,7 +245,7 @@ namespace FRI
        * @param name Full name of the IO (Syntax "IOGroupName.IOName").
        * @return Returns IO's boolean value.
        */
-      bool getBooleanIOValue(const char* name) const;
+      bool getBooleanIOValue(const char * name) const;
 
       /**
        * \brief Get digital IO value.
@@ -255,7 +254,7 @@ namespace FRI
        * @param name Full name of the IO (Syntax "IOGroupName.IOName").
        * @return Returns IO's digital value.
        */
-      unsigned long long getDigitalIOValue(const char* name) const;
+      unsigned long long getDigitalIOValue(const char * name) const;
 
       /**
        * \brief Get analog IO value.
@@ -264,15 +263,14 @@ namespace FRI
        * @param name Full name of the IO (Syntax "IOGroupName.IOName").
        * @return Returns IO's analog value.
        */
-      double getAnalogIOValue(const char* name) const;
+      double getAnalogIOValue(const char * name) const;
 
-   protected:
+protected:
+      static const int LBRMONITORMESSAGEID = 0x245142;   //!< type identifier for the FRI monitoring message corresponding to a KUKA LBR robot
+      FRIMonitoringMessage * _message;                    //!< FRI monitoring message (protobuf struct)
+    };
 
-      static const int LBRMONITORMESSAGEID  = 0x245142;  //!< type identifier for the FRI monitoring message corresponding to a KUKA LBR robot
-      FRIMonitoringMessage* _message;                    //!< FRI monitoring message (protobuf struct)
-   };
-
-}
+  }
 }
 
 

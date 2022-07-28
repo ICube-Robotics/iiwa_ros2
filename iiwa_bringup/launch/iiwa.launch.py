@@ -68,7 +68,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'namespace',
             default_value='/',
-            description='Namespace of lauched nodes, useful for multi-robot setup. \
+            description='Namespace of launched nodes, useful for multi-robot setup. \
                         If changed than also the namespace in the controllers \
                         configuration needs to be updated. Expected format "<ns>/".',
         )
@@ -260,13 +260,15 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster', '--controller-manager', [namespace, 'controller_manager']],
+        arguments=['joint_state_broadcaster', '--controller-manager',
+                   [namespace, 'controller_manager']],
     )
 
     external_torque_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['ets_state_broadcaster', '--controller-manager', [namespace, 'controller_manager']],
+        arguments=['ets_state_broadcaster', '--controller-manager',
+                   [namespace, 'controller_manager']],
         condition=UnlessCondition(use_sim),
     )
 

@@ -56,7 +56,9 @@ public:
   CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
   EXTERNAL_TORQUE_SENSOR_BROADCASTER_PUBLIC
-  controller_interface::return_type update(const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  controller_interface::return_type update(
+    const rclcpp::Time & time,
+    const rclcpp::Duration & period) override;
 
 protected:
   std::string sensor_name_;

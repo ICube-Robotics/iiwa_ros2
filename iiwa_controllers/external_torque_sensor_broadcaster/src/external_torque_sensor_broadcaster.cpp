@@ -26,8 +26,7 @@ ExternalTorqueSensorBroadcaster::ExternalTorqueSensorBroadcaster()
 
 CallbackReturn ExternalTorqueSensorBroadcaster::on_init()
 {
-  try
-  {
+  try {
     auto_declare<std::string>("sensor_name", "");
     auto_declare<std::string>("interface_names.joint_a1", "");
     auto_declare<std::string>("interface_names.joint_a2", "");
@@ -37,9 +36,7 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_init()
     auto_declare<std::string>("interface_names.joint_a6", "");
     auto_declare<std::string>("interface_names.joint_a7", "");
 
-  }
-  catch (const std::exception & e)
-  {
+  } catch (const std::exception & e) {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
     return CallbackReturn::ERROR;
   }
@@ -62,8 +59,7 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_configure(
   const bool no_interface_names_defined =
     std::count(interface_names_.begin(), interface_names_.end(), "") == 7;
 
-  if (sensor_name_.empty() && no_interface_names_defined)
-  {
+  if (sensor_name_.empty() && no_interface_names_defined) {
     RCLCPP_ERROR(
       get_node()->get_logger(),
       "'sensor_name' or at least one "
@@ -71,8 +67,7 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_configure(
     return CallbackReturn::ERROR;
   }
 
-  if (!sensor_name_.empty() && !no_interface_names_defined)
-  {
+  if (!sensor_name_.empty() && !no_interface_names_defined) {
     RCLCPP_ERROR(
       get_node()->get_logger(),
       "both 'sensor_name' and "
@@ -80,28 +75,22 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_configure(
     return CallbackReturn::ERROR;
   }
 
-  if (!sensor_name_.empty())
-  {
+  if (!sensor_name_.empty()) {
     external_torque_sensor_ = std::make_unique<semantic_components::ExternalTorqueSensor>(
       semantic_components::ExternalTorqueSensor(sensor_name_));
-  }
-  else
-  {
+  } else {
     external_torque_sensor_ = std::make_unique<semantic_components::ExternalTorqueSensor>(
       semantic_components::ExternalTorqueSensor(
         interface_names_[0], interface_names_[1], interface_names_[2], interface_names_[3],
         interface_names_[4], interface_names_[5], interface_names_[6]));
   }
 
-  try
-  {
+  try {
     // register ft sensor data publisher
     sensor_state_publisher_ = get_node()->create_publisher<std_msgs::msg::Float64MultiArray>(
       "~/external_torques", rclcpp::SystemDefaultsQoS());
     realtime_publisher_ = std::make_unique<StatePublisher>(sensor_state_publisher_);
-  }
-  catch (const std::exception & e)
-  {
+  } catch (const std::exception & e) {
     fprintf(
       stderr, "Exception thrown during publisher creation at configure stage with message : %s \n",
       e.what());
@@ -143,10 +132,11 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_deactivate(
   return CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type ExternalTorqueSensorBroadcaster::update(const rclcpp::Time & time, const rclcpp::Duration & period)
+controller_interface::return_type ExternalTorqueSensorBroadcaster::update(
+  const rclcpp::Time & time,
+  const rclcpp::Duration & period)
 {
-  if (realtime_publisher_ && realtime_publisher_->trylock())
-  {
+  if (realtime_publisher_ && realtime_publisher_->trylock()) {
     external_torque_sensor_->get_values_as_message(realtime_publisher_->msg_);
     realtime_publisher_->unlockAndPublish();
   }

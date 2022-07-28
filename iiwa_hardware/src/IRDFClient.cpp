@@ -238,7 +238,7 @@ bool IRDFClient::updateFromRobot(){
    // **************************************************************************
    // callbacks
    // **************************************************************************
-   // reset commmand message before callbacks
+   // reset command message before callbacks
    _data->resetCommandMessage();
 
    // callbacks for robot client

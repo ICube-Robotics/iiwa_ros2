@@ -63,7 +63,7 @@ public:
 
   /**
    * @brief command_interface_configuration This controller requires the position and velocity
-   * state interfaces for the controlled joints. A measurment of the interaction force using a
+   * state interfaces for the controlled joints. A measurement of the interaction force using a
    * dedicated sensor is also required.
    */
   ADMITTANCE_CONTROLLER_PUBLIC
@@ -92,7 +92,6 @@ protected:
   std::string sensor_name_;
   std::array<std::string, 7> interface_names_;
   std::unique_ptr<semantic_components::ExternalTorqueSensor> external_torque_sensor_;
-
 
 
   realtime_tools::RealtimeBuffer<std::shared_ptr<CmdType>> rt_command_ptr_;
