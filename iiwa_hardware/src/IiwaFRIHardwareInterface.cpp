@@ -61,7 +61,7 @@ CallbackReturn IiwaFRIHardwareInterface::on_init(
       RCLCPP_FATAL(
         rclcpp::get_logger("IiwaFRIHardwareInterface"),
         "Joint '%s' has %s command interfaces. Expected %s.", joint.name.c_str(),
-        joint.command_interfaces[0].name.c_str(), hw_command_mode_);
+        joint.command_interfaces[0].name.c_str(), hw_command_mode_.c_str());
       return CallbackReturn::ERROR;
     }
 
@@ -154,7 +154,7 @@ IiwaFRIHardwareInterface::export_command_interfaces()
   return command_interfaces;
 }
 // ------------------------------------------------------------------------------------------
-CallbackReturn IiwaFRIHardwareInterface::on_activate(const rclcpp_lifecycle::State & previous_state)
+CallbackReturn IiwaFRIHardwareInterface::on_activate(const rclcpp_lifecycle::State & /* previous_state */)
 {
   RCLCPP_INFO(rclcpp::get_logger("IiwaFRIHardwareInterface"), "Starting ...please wait...");
 
@@ -177,7 +177,7 @@ CallbackReturn IiwaFRIHardwareInterface::on_activate(const rclcpp_lifecycle::Sta
 
   RCLCPP_INFO(
     rclcpp::get_logger(
-      "IiwaFRIHardwareInterface"), "Connecting FRI to port= %i and ip= %s", p_port, p_ip);
+      "IiwaFRIHardwareInterface"), "Connecting FRI to port= %i and ip= %s", p_port, p_ip.c_str());
 
   robotClient_.connect(p_port, p_ip.c_str());
 
@@ -187,7 +187,7 @@ CallbackReturn IiwaFRIHardwareInterface::on_activate(const rclcpp_lifecycle::Sta
 }
 // ------------------------------------------------------------------------------------------
 CallbackReturn IiwaFRIHardwareInterface::on_deactivate(
-  const rclcpp_lifecycle::State & previous_state)
+  const rclcpp_lifecycle::State & /* previous_state */)
 {
   RCLCPP_INFO(rclcpp::get_logger("IiwaFRIHardwareInterface"), "Stopping ...please wait...");
 

@@ -171,22 +171,22 @@ iiwa_status IRDFClient::getRobotStatus(){
 
 //******************************************************************************
 void IRDFClient::getRobotJointPosition(std::vector<double>& jp){
-   for(int i=0;i<jp.size();i++)
+   for(auto i=0ul;i<jp.size();i++)
       jp[i] = _iiwaStatus.measuredJointPosition[i];
 }
 //******************************************************************************
 void IRDFClient::getRobotJointVelocity(std::vector<double>& jv){
-   for(int i=0;i<jv.size();i++)
+   for(auto i=0ul;i<jv.size();i++)
       jv[i] = _iiwaStatus.estimatedJointVelocity[i];
 }
 //******************************************************************************
 void IRDFClient::getRobotJointTorque(std::vector<double>& jf){
-   for(int i=0;i<jf.size();i++)
+   for(auto i=0ul;i<jf.size();i++)
       jf[i] = _iiwaStatus.filteredTorque[i];
 }
 //******************************************************************************
 void IRDFClient::getRobotJointExternalTorque(std::vector<double>& jet){
-   for(int i=0;i<jet.size();i++)
+   for(auto i=0ul;i<jet.size();i++)
       jet[i] = _iiwaStatus.measuredExtTorque[i];
 }
 //******************************************************************************

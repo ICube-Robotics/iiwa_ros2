@@ -5,10 +5,10 @@ agreement or other license is obtained by KUKA Roboter GmbH, Augsburg, Germany.
 
 SCOPE
 
-The software “KUKA Sunrise.Connectivity FRI Client SDK” is targeted to work in
-conjunction with the “KUKA Sunrise.Connectivity FastRobotInterface” toolkit.
-In the following, the term “software” refers to all material directly
-belonging to the provided SDK “Software development kit”, particularly source
+The software ï¿½KUKA Sunrise.Connectivity FRI Client SDKï¿½ is targeted to work in
+conjunction with the ï¿½KUKA Sunrise.Connectivity FastRobotInterfaceï¿½ toolkit.
+In the following, the term ï¿½softwareï¿½ refers to all material directly
+belonging to the provided SDK ï¿½Software development kitï¿½, particularly source
 code, libraries, binaries, manuals and technical documentation.
 
 COPYRIGHT
@@ -152,7 +152,7 @@ namespace FRI
        *
        * @return timestamp encoded as Unix time (seconds)
        */
-      const unsigned int getTimestampSec() const;
+      unsigned int getTimestampSec() const;
 
       /**
        * <br>  <b>This element is an undocumented internal feature. It is not intended to be used by applications as it might change or be removed in future versions.</b>  <br>
@@ -163,7 +163,7 @@ namespace FRI
        *
        * @return timestamp encoded as Unix time (nanoseconds part)
        */
-      const unsigned int getTimestampNanoSec() const;
+      unsigned int getTimestampNanoSec() const;
 
       /**
        * <br>  <b>This element is an undocumented internal feature. It is not intended to be used by applications as it might change or be removed in future versions.</b>  <br>

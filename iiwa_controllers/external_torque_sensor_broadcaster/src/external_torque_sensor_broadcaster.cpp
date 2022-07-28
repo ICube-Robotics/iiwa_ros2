@@ -133,8 +133,8 @@ CallbackReturn ExternalTorqueSensorBroadcaster::on_deactivate(
 }
 
 controller_interface::return_type ExternalTorqueSensorBroadcaster::update(
-  const rclcpp::Time & time,
-  const rclcpp::Duration & period)
+  const rclcpp::Time & /* time */,
+  const rclcpp::Duration & /* period */)
 {
   if (realtime_publisher_ && realtime_publisher_->trylock()) {
     external_torque_sensor_->get_values_as_message(realtime_publisher_->msg_);

@@ -62,7 +62,6 @@ set(FRI_SRC
 add_library(
   ${PROJECT_NAME}
   SHARED
-  src/iiwa_HI_DS.cpp
   src/IiwaFRIHardwareInterface.cpp
   ${FRI_SRC}
   src/IRDFClient.cpp
