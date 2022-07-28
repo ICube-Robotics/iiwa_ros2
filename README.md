@@ -80,8 +80,7 @@ For further instructions concerning the installation and setup of FRI, please re
 **NOTE:** All security modes (T1, T2, AUTO) are supported.
 
 ### On ROS2 side:
-The `iiwa_bringup` package contains 3 launch files: 2 example and the main driver launcher
-- `iiwa_gazebo.launch.py` - launches the robot in Gazebo and spawns the the default `iiwa_arm_controller`.
+The `iiwa_bringup` package contains 3 launch files: 2 examples and the main driver launcher
 - `joy_servo_teleop.launch.py` - launches a fake robot controlled by a joystick using `moveit_servo`
 - `iiwa_pose_tracking.launch.py` - launches a fake robot tracking a pose pusblished in topic `\target_pose` using pose tracking capabilities of`moveit_servo`
 - `iiwa.launch.py` - is the main launcher giving access to all feaures of the driver.
@@ -96,15 +95,17 @@ The most relevant arguments of `iiwa.launch.py` are:
 - `controllers_file` (default: "iiwa_controllers.yaml"- YAML file with the controllers configuration.
 - `description_package` (default: "iiwa_description") - Description package with robot URDF/xacro files. Usually the argument is not set, it enables use of a custom description.
 - `description_file` (default: "iiwa.config.xacro") - URDF/XACRO description file with the robot.
-- `prefix` (default: "") - Prefix of the joint names, useful for multi-robot setup. If changed than also joint names in the controllers' configuration have to be updated.
+- `prefix` (default: "") - Prefix of the joint names, useful for multi-robot setup. If changed than also joint names in the controllers' configuration have to be updated. Expected format `<prefix>/`.
+- `namespace` (default: "/") - Namespace of launched nodes, useful for multi-robot setup. If changed than also the namespace in the controllers configuration needs to be updated. Expected format `<ns>/`.
 - `use_sim` (default: "false") - Start robot in Gazebo simulation.
-- `use_fake_hardware` (default: "true") -Start robot with fake hardware mirroring command to its states.
+- `use_fake_hardware` (default: "true") - Start robot with fake hardware mirroring command to its states.
 - `robot_controller` (default: "iiwa_arm_controller") - Robot controller to start.
 - `start_rviz` (default: "true") - Start RViz2 automatically with this launch file.
 - `robot_ip` (default: "192.170.10.2") - Robot IP of FRI interface.
 - `robot_port` (default: "30200") - Robot port of FRI interface.
 - `initial_positions_file` (default: "initial_positions.yaml") - Configuration file of robot initial positions for simulation.
 - `command_interface` (default: "position") - Robot command interface [position|velocity|effort].
+- `base_frame_file` (default: "base_frame.yaml") - Configuration file of robot base frame wrt the World frame.
 
 As an example, to run the `velocity_controller` on the real hardware with default ip and port, run
 
@@ -121,7 +122,7 @@ ros2 launch iiwa_bringup iiwa.launch.py use_fake_hardware:="false" command_inter
     ```shell
     ros2 launch iiwa_bringup iiwa.launch.py
     ```
-    add the parameter `use_fake_hardware:="false"` to control the real robot.
+    add the parameter `use_fake_hardware:="false"` to control the real robot, or `use_sim:="true"` to start a simulated robot in Gazebo.
 2. Send joint trajectory goals to the hardware by using a demo node from [ros2_control_demos](https://github.com/ros-controls/ros2_control_demos) package by running
     ```shell
     ros2 launch iiwa_bringup iiwa_test_joint_trajectory_controller.launch.py
@@ -135,12 +136,16 @@ As by default ROS2 streams all data on the network, in order to avoid message in
 
 To do so run `export ROS_DOMAIN_ID= [your_domain_id]`, with `[your_domain_id]` between 0 and 255.
 
+### Running with Gazebo
+In order for Gazebo to find the robot model from the `iiwa_ros2` stack it needs to be referenced in the `GAZEBO_MODEL_PATH` environment variable. To do so, run:
+```shell
+$ source /usr/share/gazebo/setup.sh
+$ export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/path/to/iiwa_ros2
+```
+**NOTE**: If you encounter issues with spawning the robot to Gazebo making it crash, make sure your models are well referenced.
 ## Contacts ##
 ![icube](https://icube.unistra.fr/fileadmin/templates/DUN/icube/images/logo.png)
 
-[ICube Laboratory](https://plateforme.icube.unistra.fr), [University of Strasbourg](https://www.unistra.fr/), France
+[ICube Laboratory](https://icube.unistra.fr), [University of Strasbourg](https://www.unistra.fr/), France
 
 __Maciej Bednarczyk:__ [m.bednarczyk@unistra.fr](mailto:m.bednarczyk@unistra.fr), @github: [mcbed](mailto:macbednarczyk@gmail.com)
-
-\
-*This work was supported in part by the French Government Research Program Investissements d’Avenir under the IDEX of the University of Strasbourg.*
