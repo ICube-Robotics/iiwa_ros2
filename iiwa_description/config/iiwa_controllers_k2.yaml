@@ -1,0 +1,80 @@
+kuka2:
+  controller_manager:
+    ros__parameters:
+      update_rate: 225  # Hz
+
+      iiwa_arm_controller:
+        type: joint_trajectory_controller/JointTrajectoryController
+
+      joint_state_broadcaster:
+        type: joint_state_broadcaster/JointStateBroadcaster
+
+      trajectory_broadcaster:
+        type: trajectory_broadcaster/TrajectoryBroadcaster
+      
+      velocity_controller:
+        type: velocity_controllers/JointGroupVelocityController
+
+      impedance_controller:
+        type: impedance_controller/ImpedanceController
+
+      ets_state_broadcaster:
+        type: external_torque_sensor_broadcaster/ExternalTorqueSensorBroadcaster
+
+  iiwa_arm_controller:
+    ros__parameters:
+      command_interfaces:
+        - position
+      state_interfaces:
+        - position
+        - velocity
+      joints:
+        - kuka2/joint_a1
+        - kuka2/joint_a2
+        - kuka2/joint_a3
+        - kuka2/joint_a4
+        - kuka2/joint_a5
+        - kuka2/joint_a6
+        - kuka2/joint_a7
+      
+      state_publish_rate: 200.0 # Defaults to 50
+      action_monitor_rate: 20.0 # Defaults to 20
+      
+  velocity_controller:
+    ros__parameters:
+      joints:
+        - kuka2/joint_a1
+        - kuka2/joint_a2
+        - kuka2/joint_a3
+        - kuka2/joint_a4
+        - kuka2/joint_a5
+        - kuka2/joint_a6
+        - kuka2/joint_a7
+
+  trajectory_broadcaster:
+    ros__parameters:
+      joints:
+        - kuka2/joint_a1
+        - kuka2/joint_a2
+        - kuka2/joint_a3
+        - kuka2/joint_a4
+        - kuka2/joint_a5
+        - kuka2/joint_a6
+        - kuka2/joint_a7
+
+  impedance_controller:
+    ros__parameters:
+      joints:
+        - kuka2/joint_a1
+        - kuka2/joint_a2
+        - kuka2/joint_a3
+        - kuka2/joint_a4
+        - kuka2/joint_a5
+        - kuka2/joint_a6
+        - kuka2/joint_a7
+      stiffness: [50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
+      damping: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]
+
+  ets_state_broadcaster:
+    ros__parameters:
+      sensor_name: kuka2/external_torque_sensor
