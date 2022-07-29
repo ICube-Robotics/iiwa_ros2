@@ -252,7 +252,7 @@ def generate_launch_description():
     spawn_entity = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        arguments=['-topic', [namespace, 'robot_description'], '-entity', 'iiwa14'],
+        arguments=['-topic', [namespace, 'robot_description'], '-entity', [namespace, 'iiwa14']],
         output='screen',
         condition=IfCondition(use_sim),
     )
