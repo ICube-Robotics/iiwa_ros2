@@ -217,6 +217,9 @@ def generate_launch_description():
         output='both',
         namespace=namespace,
         condition=UnlessCondition(use_sim),
+        remappings=[
+            (['/kuka2/','ets_state_broadcaster/external_torques'], '/kuka1/effort_controller/commands'),
+        ],
     )
     robot_state_pub_node = Node(
         package='robot_state_publisher',
