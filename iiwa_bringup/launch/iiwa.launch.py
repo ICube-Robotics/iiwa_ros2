@@ -233,35 +233,43 @@ def generate_launch_description():
 
     robot_description = {'robot_description': robot_description_content}
 
-    robot_description_semantic_config = load_file(
-        'iiwa_description', 'moveit2/iiwa14.srdf'
+    robot_description_semantic_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution(
+                [FindPackageShare(description_package), "srdf", "iiwa.srdf.xacro"]
+            ),
+            " ",
+            "name:=",
+            "iiwa",
+            " ",
+            "prefix:=",
+            prefix,
+            " ",
+            'description_package:=',
+            description_package,
+        ]
     )
+
     robot_description_semantic = {
-        'robot_description_semantic': robot_description_semantic_config
+        'robot_description_semantic': robot_description_semantic_content
     }
 
-    joint_limits_yaml = load_yaml(
-        'iiwa_description', "moveit2/iiwa_joint_limits.yaml"
+    robot_description_planning = PathJoinSubstitution([
+            FindPackageShare(description_package), "moveit2", "iiwa_joint_limits.yaml",
+            FindPackageShare(description_package), "moveit2", "iiwa_cartesian_limits.yaml",
+        ]
     )
-    cartesian_limits_yaml = load_yaml(
-        'iiwa_description', "moveit2/iiwa_cartesian_limits.yaml"
-    )
-    robot_description_planning = {
-        "robot_description_planning": {
-            **joint_limits_yaml,
-            **cartesian_limits_yaml,
-        }
-    }
 
     move_group_capabilities = {
         "capabilities": """pilz_industrial_motion_planner/MoveGroupSequenceAction \
             pilz_industrial_motion_planner/MoveGroupSequenceService"""
     }
 
-    kinematics_yaml = load_yaml(
-        'iiwa_description', "moveit2/kinematics.yaml"
+    robot_description_kinematics = PathJoinSubstitution(
+        [FindPackageShare(description_package), "moveit2", "kinematics.yaml"]
     )
-    robot_description_kinematics = {"robot_description_kinematics": kinematics_yaml}
 
     planning_pipelines_config = {
         "default_planning_pipeline": "pilz",
