@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import os
+import yaml
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, RegisterEventHandler
 from launch.conditions import IfCondition, UnlessCondition
@@ -20,6 +21,29 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from ament_index_python.packages import get_package_share_directory
+
+
+def load_file(package_name, file_path):
+    package_path = get_package_share_directory(package_name)
+    absolute_file_path = os.path.join(package_path, file_path)
+
+    try:
+        with open(absolute_file_path, "r") as file:
+            return file.read()
+    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
+        return None
+
+
+def load_yaml(package_name, file_path):
+    package_path = get_package_share_directory(package_name)
+    absolute_file_path = os.path.join(package_path, file_path)
+
+    try:
+        with open(absolute_file_path, "r") as file:
+            return yaml.safe_load(file)
+    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
+        return None
 
 
 def generate_launch_description():
@@ -30,7 +54,7 @@ def generate_launch_description():
             'runtime_config_package',
             default_value='iiwa_description',
             description='Package with the controller\'s configuration in "config" folder. \
-        Usually the argument is not set, it enables use of a custom setup.',
+                         Usually the argument is not set, it enables use of a custom setup.',
         )
     )
     declared_arguments.append(
@@ -45,7 +69,7 @@ def generate_launch_description():
             'description_package',
             default_value='iiwa_description',
             description='Description package with robot URDF/xacro files. Usually the argument \
-            is not set, it enables use of a custom description.',
+                         is not set, it enables use of a custom description.',
         )
     )
     declared_arguments.append(
@@ -60,8 +84,8 @@ def generate_launch_description():
             'prefix',
             default_value='""',
             description='Prefix of the joint names, useful for multi-robot setup. \
-                        If changed than also joint names in the controllers \
-                        configuration have to be updated. Expected format "<prefix>/"',
+                         If changed than also joint names in the controllers \
+                         configuration have to be updated. Expected format "<prefix>/"',
         )
     )
     declared_arguments.append(
@@ -69,8 +93,8 @@ def generate_launch_description():
             'namespace',
             default_value='/',
             description='Namespace of launched nodes, useful for multi-robot setup. \
-                        If changed than also the namespace in the controllers \
-                        configuration needs to be updated. Expected format "<ns>/".',
+                         If changed than also the namespace in the controllers \
+                         configuration needs to be updated. Expected format "<ns>/".',
         )
     )
     declared_arguments.append(
@@ -85,6 +109,14 @@ def generate_launch_description():
             'use_fake_hardware',
             default_value='true',
             description='Start robot with fake hardware mirroring command to its states.',
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'use_planning',
+            default_value='false',
+            description='Start robot with Moveit2 `move_group` planning \
+                         config for Pilz and OMPL.',
         )
     )
     declared_arguments.append(
@@ -145,6 +177,7 @@ def generate_launch_description():
     prefix = LaunchConfiguration('prefix')
     use_sim = LaunchConfiguration('use_sim')
     use_fake_hardware = LaunchConfiguration('use_fake_hardware')
+    use_planning = LaunchConfiguration('use_planning')
     robot_controller = LaunchConfiguration('robot_controller')
     start_rviz = LaunchConfiguration('start_rviz')
     robot_ip = LaunchConfiguration('robot_ip')
@@ -197,7 +230,86 @@ def generate_launch_description():
             namespace,
         ]
     )
+
     robot_description = {'robot_description': robot_description_content}
+
+    robot_description_semantic_config = load_file(
+        'iiwa_description', 'moveit2/iiwa14.srdf'
+    )
+    robot_description_semantic = {
+        'robot_description_semantic': robot_description_semantic_config
+    }
+
+    joint_limits_yaml = load_yaml(
+        'iiwa_description', "moveit2/iiwa_joint_limits.yaml"
+    )
+    cartesian_limits_yaml = load_yaml(
+        'iiwa_description', "moveit2/iiwa_cartesian_limits.yaml"
+    )
+    robot_description_planning = {
+        "robot_description_planning": {
+            **joint_limits_yaml,
+            **cartesian_limits_yaml,
+        }
+    }
+
+    move_group_capabilities = {
+        "capabilities": """pilz_industrial_motion_planner/MoveGroupSequenceAction \
+            pilz_industrial_motion_planner/MoveGroupSequenceService"""
+    }
+
+    kinematics_yaml = load_yaml(
+        'iiwa_description', "moveit2/kinematics.yaml"
+    )
+    robot_description_kinematics = {"robot_description_kinematics": kinematics_yaml}
+
+    planning_pipelines_config = {
+        "default_planning_pipeline": "pilz",
+        "planning_pipelines": ["pilz", "ompl"],
+        "pilz": {
+            "planning_plugin": "pilz_industrial_motion_planner/CommandPlanner",
+            "request_adapters": "",
+            "start_state_max_bounds_error": 0.1,
+        },
+        "ompl": {
+            "planning_plugin": "ompl_interface/OMPLPlanner",
+            "request_adapters": """ \
+                default_planner_request_adapters/AddTimeOptimalParameterization \
+                default_planner_request_adapters/FixWorkspaceBounds \
+                default_planner_request_adapters/FixStartStateBounds \
+                default_planner_request_adapters/FixStartStateCollision \
+                default_planner_request_adapters/FixStartStatePathConstraints""",
+            "start_state_max_bounds_error": 0.1,
+        },
+    }
+    ompl_planning_yaml = load_yaml(
+        'iiwa_description', "moveit2/ompl_planning.yaml"
+    )
+    planning_pipelines_config["ompl"].update(ompl_planning_yaml)
+
+    moveit_simple_controllers_yaml = load_yaml(
+        'iiwa_description', "moveit2/iiwa_controller_names.yaml"
+    )
+
+    moveit_controllers = {
+        "moveit_simple_controller_manager": moveit_simple_controllers_yaml,
+        "moveit_controller_manager":
+            "moveit_simple_controller_manager/MoveItSimpleControllerManager",
+    }
+
+    trajectory_execution = {
+        "moveit_manage_controllers": True,
+        "trajectory_execution.allowed_execution_duration_scaling": 1.2,
+        "trajectory_execution.allowed_goal_duration_margin": 0.5,
+        "trajectory_execution.allowed_start_tolerance": 0.01,
+    }
+
+    planning_scene_monitor_parameters = {
+        "publish_planning_scene": True,
+        "publish_geometry_updates": True,
+        "publish_state_updates": True,
+        "publish_transforms_updates": True,
+    }
 
     robot_controllers = PathJoinSubstitution(
         [
@@ -208,6 +320,24 @@ def generate_launch_description():
     )
     rviz_config_file = PathJoinSubstitution(
         [FindPackageShare(description_package), 'rviz', 'iiwa.rviz']
+    )
+    move_group_node = Node(
+        package="moveit_ros_move_group",
+        executable="move_group",
+        namespace=namespace,
+        output="screen",
+        parameters=[
+            robot_description,
+            robot_description_semantic,
+            robot_description_kinematics,
+            robot_description_planning,
+            planning_pipelines_config,
+            trajectory_execution,
+            moveit_controllers,
+            planning_scene_monitor_parameters,
+            move_group_capabilities,
+        ],
+        condition=IfCondition(use_planning),
     )
 
     control_node = Node(
@@ -231,6 +361,13 @@ def generate_launch_description():
         name='rviz2',
         output='log',
         arguments=['-d', rviz_config_file],
+        parameters=[
+            robot_description,
+            robot_description_semantic,
+            robot_description_planning,
+            robot_description_kinematics,
+            planning_pipelines_config,
+        ],
         condition=IfCondition(start_rviz),
     )
     iiwa_simulation_world = PathJoinSubstitution(
@@ -315,6 +452,7 @@ def generate_launch_description():
     nodes = [
         gazebo,
         control_node,
+        move_group_node,
         spawn_entity,
         robot_state_pub_node,
         delay_joint_state_broadcaster_spawner_after_control_node,
