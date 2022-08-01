@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import os
 import yaml
 from launch import LaunchDescription
@@ -22,17 +23,6 @@ from launch.substitutions import Command, FindExecutable, LaunchConfiguration, P
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
-
-
-def load_file(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-
-    try:
-        with open(absolute_file_path, "r") as file:
-            return file.read()
-    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
-        return None
 
 
 def load_yaml(package_name, file_path):
@@ -293,17 +283,16 @@ def generate_launch_description():
     ompl_planning_yaml = load_yaml(
         'iiwa_description', "moveit2/ompl_planning.yaml"
     )
+    # ompl_planning_yaml = PathJoinSubstitution(
+    #     [FindPackageShare(description_package), 
+    #         "moveit2", "ompl_planning.yaml"]
+    # )
     planning_pipelines_config["ompl"].update(ompl_planning_yaml)
 
-    moveit_simple_controllers_yaml = load_yaml(
-        'iiwa_description', "moveit2/iiwa_controller_names.yaml"
+    moveit_controllers = PathJoinSubstitution(
+        [FindPackageShare(description_package), 
+            "moveit2", "iiwa_moveit_controller_config.yaml"]
     )
-
-    moveit_controllers = {
-        "moveit_simple_controller_manager": moveit_simple_controllers_yaml,
-        "moveit_controller_manager":
-            "moveit_simple_controller_manager/MoveItSimpleControllerManager",
-    }
 
     trajectory_execution = {
         "moveit_manage_controllers": True,
