@@ -98,6 +98,13 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
+            'use_servoing',
+            default_value='false',
+            description='Start robot with Moveit2 servoing.',
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
             'robot_controller',
             default_value='iiwa_arm_controller',
             description='Robot controller to start.',
@@ -155,6 +162,7 @@ def generate_launch_description():
     use_sim = LaunchConfiguration('use_sim')
     use_fake_hardware = LaunchConfiguration('use_fake_hardware')
     use_planning = LaunchConfiguration('use_planning')
+    use_servoing = LaunchConfiguration('use_servoing')
     robot_controller = LaunchConfiguration('robot_controller')
     start_rviz = LaunchConfiguration('start_rviz')
     robot_ip = LaunchConfiguration('robot_ip')
@@ -210,6 +218,7 @@ def generate_launch_description():
 
     robot_description = {'robot_description': robot_description_content}
 
+    # Running with Moveit2 planning 
     iiwa_planning_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_planning.launch.py']),
         launch_arguments={
@@ -222,6 +231,20 @@ def generate_launch_description():
             'namespace': namespace,
         }.items(),
         condition=IfCondition(use_planning),
+    )
+
+    # Running with Moveit2 servoing
+    iiwa_servoing_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_servoing.launch.py']),
+        launch_arguments={
+            'runtime_config_package': runtime_config_package,
+            'description_package': description_package,
+            'description_file': description_file,
+            'prefix': prefix,
+            'base_frame_file': base_frame_file,
+            'namespace': namespace,
+        }.items(),
+        condition=IfCondition(use_servoing),
     )
 
     robot_controllers = PathJoinSubstitution(
@@ -345,6 +368,7 @@ def generate_launch_description():
         gazebo,
         control_node,
         iiwa_planning_launch,
+        iiwa_servoing_launch,
         spawn_entity,
         robot_state_pub_node,
         delay_joint_state_broadcaster_spawner_after_control_node,

@@ -23,52 +23,16 @@ from launch_ros.descriptions import ComposableNode
 
 
 def generate_launch_description():
-    # Get parameters for the Servo node
-    servo_params = PathJoinSubstitution([
-            FindPackageShare('iiwa_description'),
-            'moveit2',
-            'iiwa_moveit2_servo_config.yaml',
-        ]
-    )
+    # Launch the main launcher with servo
 
     iiwa_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa.launch.py']),
         launch_arguments={
             'command_interface': 'position',
             'robot_controller': 'iiwa_arm_controller',
+            'use_servoing': 'true',
         }.items(),
     )
-
-    # Get URDF via xacro
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name='xacro')]),
-            ' ',
-            PathJoinSubstitution(
-                [FindPackageShare('iiwa_description'), 'config', 'iiwa.config.xacro']
-            ),
-        ]
-    )
-
-    robot_description = {'robot_description': robot_description_content}
-
-    # Get SRDF via xacro
-    robot_description_semantic_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name='xacro')]),
-            ' ',
-            PathJoinSubstitution(
-                [FindPackageShare('iiwa_description'), 'srdf', 'iiwa.srdf.xacro']
-            ),
-            ' ',
-            'name:=',
-            'iiwa',
-        ]
-    )
-
-    robot_description_semantic = {
-        'robot_description_semantic': robot_description_semantic_content
-    }
 
     # Launch as much as possible in components
     container = ComposableNodeContainer(
@@ -93,15 +57,4 @@ def generate_launch_description():
         output='screen',
     )
 
-    servo_node = Node(
-        package='iiwa_moveit2',
-        executable='servo_node',
-        output='screen',
-        parameters=[
-            servo_params,
-            robot_description,
-            robot_description_semantic
-        ],
-    )
-
-    return LaunchDescription([container, servo_node, iiwa_launch, ])
+    return LaunchDescription([container, iiwa_launch, ])
