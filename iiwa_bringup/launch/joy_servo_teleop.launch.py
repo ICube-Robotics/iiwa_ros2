@@ -12,46 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import ThisLaunchFileDir
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, ThisLaunchFileDir
+from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.actions import Node
 from launch_ros.descriptions import ComposableNode
-import xacro
-import yaml
-
-
-def load_file(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-
-    try:
-        with open(absolute_file_path) as file:
-            return file.read()
-    except OSError:  # parent of IOError, OSError *and* WindowsError where available
-        return None
-
-
-def load_yaml(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-
-    try:
-        with open(absolute_file_path) as file:
-            return yaml.safe_load(file)
-    except OSError:  # parent of IOError, OSError *and* WindowsError where available
-        return None
 
 
 def generate_launch_description():
     # Get parameters for the Servo node
-    servo_yaml = load_yaml('iiwa_description', 'moveit2/iiwa_moveit2_servo_config.yaml')
-    servo_params = {'moveit_servo': servo_yaml}
+    servo_params = PathJoinSubstitution([
+            FindPackageShare('iiwa_description'),
+            'moveit2',
+            'iiwa_moveit2_servo_config.yaml',
+        ]
+    )
 
     iiwa_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa.launch.py']),
@@ -61,20 +39,35 @@ def generate_launch_description():
         }.items(),
     )
 
-    robot_description_config = xacro.process_file(
-        os.path.join(
-            get_package_share_directory('iiwa_description'),
-            'config',
-            'iiwa.config.xacro',
-        )
+    # Get URDF via xacro
+    robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name='xacro')]),
+            ' ',
+            PathJoinSubstitution(
+                [FindPackageShare('iiwa_description'), 'config', 'iiwa.config.xacro']
+            ),
+        ]
     )
-    robot_description = {'robot_description': robot_description_config.toxml()}
 
-    robot_description_semantic_config = load_file(
-        'iiwa_description', 'moveit2/iiwa14.srdf'
+    robot_description = {'robot_description': robot_description_content}
+
+    # Get SRDF via xacro
+    robot_description_semantic_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name='xacro')]),
+            ' ',
+            PathJoinSubstitution(
+                [FindPackageShare('iiwa_description'), 'srdf', 'iiwa.srdf.xacro']
+            ),
+            ' ',
+            'name:=',
+            'iiwa',
+        ]
     )
+
     robot_description_semantic = {
-        'robot_description_semantic': robot_description_semantic_config
+        'robot_description_semantic': robot_description_semantic_content
     }
 
     # Launch as much as possible in components
@@ -104,7 +97,11 @@ def generate_launch_description():
         package='iiwa_moveit2',
         executable='servo_node',
         output='screen',
-        parameters=[servo_params, robot_description, robot_description_semantic],
+        parameters=[
+            servo_params,
+            robot_description,
+            robot_description_semantic
+        ],
     )
 
     return LaunchDescription([container, servo_node, iiwa_launch, ])
