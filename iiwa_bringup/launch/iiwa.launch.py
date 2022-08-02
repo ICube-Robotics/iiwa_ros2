@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import yaml
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, RegisterEventHandler
 from launch.conditions import IfCondition, UnlessCondition
@@ -22,18 +20,6 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-from ament_index_python.packages import get_package_share_directory
-
-
-def load_yaml(package_name, file_path):
-    package_path = get_package_share_directory(package_name)
-    absolute_file_path = os.path.join(package_path, file_path)
-
-    try:
-        with open(absolute_file_path, "r") as file:
-            return yaml.safe_load(file)
-    except EnvironmentError:  # parent of IOError, OSError *and* WindowsError where available
-        return None
 
 
 def generate_launch_description():
@@ -223,6 +209,7 @@ def generate_launch_description():
 
     robot_description = {'robot_description': robot_description_content}
 
+    # Get SRDF via xacro
     robot_description_semantic_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
@@ -246,8 +233,13 @@ def generate_launch_description():
         'robot_description_semantic': robot_description_semantic_content
     }
 
-    robot_description_planning = PathJoinSubstitution([
+    # Get planning parameters
+    robot_description_planning_joint_limits = PathJoinSubstitution([
             FindPackageShare(description_package), "moveit2", "iiwa_joint_limits.yaml",
+        ]
+    )
+
+    robot_description_planning_cartesian_limits = PathJoinSubstitution([
             FindPackageShare(description_package), "moveit2", "iiwa_cartesian_limits.yaml",
         ]
     )
@@ -261,36 +253,18 @@ def generate_launch_description():
         [FindPackageShare(description_package), "moveit2", "kinematics.yaml"]
     )
 
-    planning_pipelines_config = {
-        "default_planning_pipeline": "pilz",
-        "planning_pipelines": ["pilz", "ompl"],
-        "pilz": {
-            "planning_plugin": "pilz_industrial_motion_planner/CommandPlanner",
-            "request_adapters": "",
-            "start_state_max_bounds_error": 0.1,
-        },
-        "ompl": {
-            "planning_plugin": "ompl_interface/OMPLPlanner",
-            "request_adapters": """ \
-                default_planner_request_adapters/AddTimeOptimalParameterization \
-                default_planner_request_adapters/FixWorkspaceBounds \
-                default_planner_request_adapters/FixStartStateBounds \
-                default_planner_request_adapters/FixStartStateCollision \
-                default_planner_request_adapters/FixStartStatePathConstraints""",
-            "start_state_max_bounds_error": 0.1,
-        },
-    }
-    ompl_planning_yaml = load_yaml(
-        'iiwa_description', "moveit2/ompl_planning.yaml"
+    planning_pipelines_config = PathJoinSubstitution([
+            FindPackageShare(description_package), "moveit2", "planning_pipelines_config.yaml",
+        ]
     )
-    # ompl_planning_yaml = PathJoinSubstitution(
-    #     [FindPackageShare(description_package), 
-    #         "moveit2", "ompl_planning.yaml"]
-    # )
-    planning_pipelines_config["ompl"].update(ompl_planning_yaml)
+
+    ompl_planning_config = PathJoinSubstitution([
+            FindPackageShare(description_package), "moveit2", "ompl_planning.yaml",
+        ]
+    )
 
     moveit_controllers = PathJoinSubstitution(
-        [FindPackageShare(description_package), 
+        [FindPackageShare(description_package),
             "moveit2", "iiwa_moveit_controller_config.yaml"]
     )
 
@@ -327,8 +301,10 @@ def generate_launch_description():
             robot_description,
             robot_description_semantic,
             robot_description_kinematics,
-            robot_description_planning,
+            robot_description_planning_cartesian_limits,
+            robot_description_planning_joint_limits,
             planning_pipelines_config,
+            ompl_planning_config,
             trajectory_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
@@ -361,9 +337,11 @@ def generate_launch_description():
         parameters=[
             robot_description,
             robot_description_semantic,
-            robot_description_planning,
+            robot_description_planning_cartesian_limits,
+            robot_description_planning_joint_limits,
             robot_description_kinematics,
             planning_pipelines_config,
+            ompl_planning_config,
         ],
         condition=IfCondition(start_rviz),
     )
