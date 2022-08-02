@@ -100,6 +100,7 @@ The most relevant arguments of `iiwa.launch.py` are:
 - `use_sim` (default: "false") - Start robot in Gazebo simulation.
 - `use_fake_hardware` (default: "true") - Start robot with fake hardware mirroring command to its states.
 - `use_planning` (default: "false") - Start robot with Moveit2 `move_group` planning configuration for Pilz and OMPL.
+- `use_servoing` (default: "false") - Start robot with Moveit2 servoing.
 - `robot_controller` (default: "iiwa_arm_controller") - Robot controller to start.
 - `start_rviz` (default: "true") - Start RViz2 automatically with this launch file.
 - `robot_ip` (default: "192.170.10.2") - Robot IP of FRI interface.
