@@ -25,14 +25,6 @@ def generate_launch_description():
     declared_arguments = []
     declared_arguments.append(
         DeclareLaunchArgument(
-            'runtime_config_package',
-            default_value='iiwa_description',
-            description='Package with the controller\'s configuration in "config" folder. \
-                         Usually the argument is not set, it enables use of a custom setup.',
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
             'description_package',
             default_value='iiwa_description',
             description='Description package with robot URDF/xacro files. Usually the argument \
@@ -73,7 +65,6 @@ def generate_launch_description():
     )
 
     # Initialize Arguments
-    runtime_config_package = LaunchConfiguration('runtime_config_package')
     description_package = LaunchConfiguration('description_package')
     description_file = LaunchConfiguration('description_file')
     prefix = LaunchConfiguration('prefix')
@@ -95,8 +86,8 @@ def generate_launch_description():
             'base_frame_file:=',
             base_frame_file,
             ' ',
-            'runtime_config_package:=',
-            runtime_config_package,
+            'description_package:=',
+            description_package,
             ' ',
             'namespace:=',
             namespace,

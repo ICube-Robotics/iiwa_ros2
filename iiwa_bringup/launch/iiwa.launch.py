@@ -205,6 +205,9 @@ def generate_launch_description():
             'base_frame_file:=',
             base_frame_file,
             ' ',
+            'description_package:=',
+            description_package,
+            ' ',
             'runtime_config_package:=',
             runtime_config_package,
             ' ',
@@ -222,7 +225,6 @@ def generate_launch_description():
     iiwa_planning_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_planning.launch.py']),
         launch_arguments={
-            'runtime_config_package': runtime_config_package,
             'description_package': description_package,
             'description_file': description_file,
             'prefix': prefix,
@@ -237,7 +239,6 @@ def generate_launch_description():
     iiwa_servoing_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_servoing.launch.py']),
         launch_arguments={
-            'runtime_config_package': runtime_config_package,
             'description_package': description_package,
             'description_file': description_file,
             'prefix': prefix,
