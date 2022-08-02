@@ -11,7 +11,7 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 - dedicated sensors and broadcasters to get data from the robot
 - dedicated controllers
 - integration with Gazebo
-- integration with Moveit2
+- integration with Moveit2 (OMPL, PILZ and servo)
 
 ## Available Packages in this Repository ##
 - `iiwa_bringup` - launch and run-time configurations
@@ -80,7 +80,7 @@ For further instructions concerning the installation and setup of FRI, please re
 **NOTE:** All security modes (T1, T2, AUTO) are supported.
 
 ### On ROS2 side:
-The `iiwa_bringup` package contains 3 launch files: 2 examples and the main driver launcher
+The `iiwa_bringup` package contains 3 main launch files: 2 examples and the main driver launcher
 - `joy_servo_teleop.launch.py` - launches a fake robot controlled by a joystick using `moveit_servo`
 - `iiwa_pose_tracking.launch.py` - launches a fake robot tracking a pose pusblished in topic `\target_pose` using pose tracking capabilities of`moveit_servo`
 - `iiwa.launch.py` - is the main launcher giving access to all feaures of the driver.
@@ -99,6 +99,7 @@ The most relevant arguments of `iiwa.launch.py` are:
 - `namespace` (default: "/") - Namespace of launched nodes, useful for multi-robot setup. If changed than also the namespace in the controllers configuration needs to be updated. Expected format `<ns>/`.
 - `use_sim` (default: "false") - Start robot in Gazebo simulation.
 - `use_fake_hardware` (default: "true") - Start robot with fake hardware mirroring command to its states.
+- `use_planning` (default: "false") - Start robot with Moveit2 `move_group` planning configuration for Pilz and OMPL.
 - `robot_controller` (default: "iiwa_arm_controller") - Robot controller to start.
 - `start_rviz` (default: "true") - Start RViz2 automatically with this launch file.
 - `robot_ip` (default: "192.170.10.2") - Robot IP of FRI interface.
