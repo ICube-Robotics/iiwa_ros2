@@ -259,7 +259,7 @@ def generate_launch_description():
         parameters=[
             robot_description,
         ],
-        condition=IfCondition(start_rviz),
+        condition=UnlessCondition(use_planning),
     )
     iiwa_simulation_world = PathJoinSubstitution(
         [FindPackageShare(description_package),
@@ -329,7 +329,8 @@ def generate_launch_description():
         event_handler=OnProcessExit(
             target_action=joint_state_broadcaster_spawner,
             on_exit=[rviz_node],
-        )
+        ),
+        condition=IfCondition(start_rviz),
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
