@@ -26,6 +26,15 @@
   <exec_depend>ros2_controllers</exec_depend>
   <exec_depend>ros2_control</exec_depend>
   <exec_depend>gazebo_ros2_control</exec_depend>
+  <exec_depend>pilz_industrial_motion_planner</exec_depend>
+  <exec_depend>moveit_ros_planning</exec_depend>
+  <exec_depend>moveit_planners_ompl</exec_depend>
+  <exec_depend>moveit_ros_move_group</exec_depend>
+  <exec_depend>moveit_simple_controller_manager</exec_depend>
+  <exec_depend>moveit_servo</exec_depend>
+  <exec_depend>moveit_msgs</exec_depend>
+  <exec_depend>moveit_common</exec_depend>
+  <exec_depend>moveit_core</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
