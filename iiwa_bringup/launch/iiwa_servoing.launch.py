@@ -21,7 +21,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-# Declare arguments
+    # Declare arguments
     declared_arguments = []
     declared_arguments.append(
         DeclareLaunchArgument(

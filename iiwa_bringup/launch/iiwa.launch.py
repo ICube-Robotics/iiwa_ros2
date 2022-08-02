@@ -218,7 +218,7 @@ def generate_launch_description():
 
     robot_description = {'robot_description': robot_description_content}
 
-    # Running with Moveit2 planning 
+    # Running with Moveit2 planning
     iiwa_planning_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_planning.launch.py']),
         launch_arguments={
