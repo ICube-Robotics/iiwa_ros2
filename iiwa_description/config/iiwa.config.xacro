@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<!-- Kuka iiwa 14 7DoF manipulator -->
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="iiwa14">
+<!-- Kuka iiwa 7DoF manipulator -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="iiwa">
 
     <!-- Enable setting arguments from the launch file -->
     <xacro:arg name="use_sim" default="false" />
@@ -18,7 +18,7 @@
     <xacro:property name="runtime_config_package" value="$(arg runtime_config_package)"/>
 
     <!-- Import iiwa urdf file -->
-    <xacro:include filename="$(find ${runtime_config_package})/urdf/iiwa14.urdf.xacro" />
+    <xacro:include filename="$(find ${runtime_config_package})/urdf/iiwa.urdf.xacro" />
 
     <!-- Import iiwa ros2_control description -->
     <xacro:include filename="$(find ${runtime_config_package})/ros2_control/iiwa.r2c_hardware.xacro" />
@@ -34,10 +34,10 @@
 
     <xacro:property name="base_frame_file" value="$(arg base_frame_file)"/>
     <xacro:property name="base_frame" value="${load_yaml(base_frame_file)['base_frame']}"/>
-    <xacro:iiwa14 parent="world" prefix="$(arg prefix)">
+    <xacro:iiwa parent="world" prefix="$(arg prefix)">
         <origin xyz="${base_frame['x']} ${base_frame['y']} ${base_frame['z']}"
             rpy="${base_frame['roll']} ${base_frame['pitch']} ${base_frame['yaw']}" />
-    </xacro:iiwa14>
+    </xacro:iiwa>
 
     <xacro:iiwa_r2c_hardware
         name="iiwaRobot" prefix="$(arg prefix)"

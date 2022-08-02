@@ -18,6 +18,7 @@ from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import ThisLaunchFileDir
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -30,7 +31,7 @@ def generate_launch_description():
             'runtime_config_package',
             default_value='iiwa_description',
             description='Package with the controller\'s configuration in "config" folder. \
-        Usually the argument is not set, it enables use of a custom setup.',
+                         Usually the argument is not set, it enables use of a custom setup.',
         )
     )
     declared_arguments.append(
@@ -45,7 +46,7 @@ def generate_launch_description():
             'description_package',
             default_value='iiwa_description',
             description='Description package with robot URDF/xacro files. Usually the argument \
-            is not set, it enables use of a custom description.',
+                         is not set, it enables use of a custom description.',
         )
     )
     declared_arguments.append(
@@ -60,8 +61,8 @@ def generate_launch_description():
             'prefix',
             default_value='""',
             description='Prefix of the joint names, useful for multi-robot setup. \
-                        If changed than also joint names in the controllers \
-                        configuration have to be updated. Expected format "<prefix>/"',
+                         If changed than also joint names in the controllers \
+                         configuration have to be updated. Expected format "<prefix>/"',
         )
     )
     declared_arguments.append(
@@ -69,8 +70,8 @@ def generate_launch_description():
             'namespace',
             default_value='/',
             description='Namespace of launched nodes, useful for multi-robot setup. \
-                        If changed than also the namespace in the controllers \
-                        configuration needs to be updated. Expected format "<ns>/".',
+                         If changed than also the namespace in the controllers \
+                         configuration needs to be updated. Expected format "<ns>/".',
         )
     )
     declared_arguments.append(
@@ -85,6 +86,21 @@ def generate_launch_description():
             'use_fake_hardware',
             default_value='true',
             description='Start robot with fake hardware mirroring command to its states.',
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'use_planning',
+            default_value='false',
+            description='Start robot with Moveit2 `move_group` planning \
+                         config for Pilz and OMPL.',
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'use_servoing',
+            default_value='false',
+            description='Start robot with Moveit2 servoing.',
         )
     )
     declared_arguments.append(
@@ -145,6 +161,8 @@ def generate_launch_description():
     prefix = LaunchConfiguration('prefix')
     use_sim = LaunchConfiguration('use_sim')
     use_fake_hardware = LaunchConfiguration('use_fake_hardware')
+    use_planning = LaunchConfiguration('use_planning')
+    use_servoing = LaunchConfiguration('use_servoing')
     robot_controller = LaunchConfiguration('robot_controller')
     start_rviz = LaunchConfiguration('start_rviz')
     robot_ip = LaunchConfiguration('robot_ip')
@@ -197,7 +215,37 @@ def generate_launch_description():
             namespace,
         ]
     )
+
     robot_description = {'robot_description': robot_description_content}
+
+    # Running with Moveit2 planning
+    iiwa_planning_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_planning.launch.py']),
+        launch_arguments={
+            'runtime_config_package': runtime_config_package,
+            'description_package': description_package,
+            'description_file': description_file,
+            'prefix': prefix,
+            'start_rviz': start_rviz,
+            'base_frame_file': base_frame_file,
+            'namespace': namespace,
+        }.items(),
+        condition=IfCondition(use_planning),
+    )
+
+    # Running with Moveit2 servoing
+    iiwa_servoing_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_servoing.launch.py']),
+        launch_arguments={
+            'runtime_config_package': runtime_config_package,
+            'description_package': description_package,
+            'description_file': description_file,
+            'prefix': prefix,
+            'base_frame_file': base_frame_file,
+            'namespace': namespace,
+        }.items(),
+        condition=IfCondition(use_servoing),
+    )
 
     robot_controllers = PathJoinSubstitution(
         [
@@ -231,7 +279,10 @@ def generate_launch_description():
         name='rviz2',
         output='log',
         arguments=['-d', rviz_config_file],
-        condition=IfCondition(start_rviz),
+        parameters=[
+            robot_description,
+        ],
+        condition=UnlessCondition(use_planning),
     )
     iiwa_simulation_world = PathJoinSubstitution(
         [FindPackageShare(description_package),
@@ -301,7 +352,8 @@ def generate_launch_description():
         event_handler=OnProcessExit(
             target_action=joint_state_broadcaster_spawner,
             on_exit=[rviz_node],
-        )
+        ),
+        condition=IfCondition(start_rviz),
     )
 
     # Delay start of robot_controller after `joint_state_broadcaster`
@@ -315,6 +367,8 @@ def generate_launch_description():
     nodes = [
         gazebo,
         control_node,
+        iiwa_planning_launch,
+        iiwa_servoing_launch,
         spawn_entity,
         robot_state_pub_node,
         delay_joint_state_broadcaster_spawner_after_control_node,
