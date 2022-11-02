@@ -34,7 +34,7 @@
     </gazebo>
 
     <xacro:property name="base_frame_file" value="$(arg base_frame_file)"/>
-    <xacro:property name="base_frame" value="${load_yaml(base_frame_file)['base_frame']}"/>
+    <xacro:property name="base_frame" value="${xacro.load_yaml(base_frame_file)['base_frame']}"/>
     <xacro:iiwa parent="world" prefix="$(arg prefix)">
         <origin xyz="${base_frame['x']} ${base_frame['y']} ${base_frame['z']}"
             rpy="${base_frame['roll']} ${base_frame['pitch']} ${base_frame['yaw']}" />
