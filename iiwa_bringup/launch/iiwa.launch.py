@@ -223,7 +223,11 @@ def generate_launch_description():
 
     # Running with Moveit2 planning
     iiwa_planning_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_planning.launch.py']),
+        PythonLaunchDescriptionSource([
+            FindPackageShare('iiwa_bringup'),
+            '/launch',
+            '/iiwa_planning.launch.py'
+        ]),
         launch_arguments={
             'description_package': description_package,
             'description_file': description_file,
@@ -237,7 +241,11 @@ def generate_launch_description():
 
     # Running with Moveit2 servoing
     iiwa_servoing_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_servoing.launch.py']),
+        PythonLaunchDescriptionSource([
+            FindPackageShare('iiwa_bringup'),
+            '/launch',
+            '/iiwa_servoing.launch.py'    
+        ]),
         launch_arguments={
             'description_package': description_package,
             'description_file': description_file,
