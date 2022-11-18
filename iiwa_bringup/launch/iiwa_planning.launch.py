@@ -70,6 +70,13 @@ def generate_launch_description():
             description='Configuration file of robot base frame wrt World.',
         )
     )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'use_sim',
+            default_value='false',
+            description='Start robot in Gazebo simulation.',
+        )
+    )
 
     # Initialize Arguments
     description_package = LaunchConfiguration('description_package')
@@ -78,6 +85,7 @@ def generate_launch_description():
     start_rviz = LaunchConfiguration('start_rviz')
     base_frame_file = LaunchConfiguration('base_frame_file')
     namespace = LaunchConfiguration('namespace')
+    use_sim = LaunchConfiguration('use_sim')
 
     # Get URDF via xacro
     robot_description_content = Command(
@@ -194,6 +202,7 @@ def generate_launch_description():
             moveit_controllers,
             planning_scene_monitor_parameters,
             move_group_capabilities,
+            {"use_sim_time": use_sim},
         ],
     )
 

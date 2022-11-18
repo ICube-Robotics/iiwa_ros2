@@ -18,7 +18,6 @@ from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
-from launch.substitutions import ThisLaunchFileDir
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -223,7 +222,11 @@ def generate_launch_description():
 
     # Running with Moveit2 planning
     iiwa_planning_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_planning.launch.py']),
+        PythonLaunchDescriptionSource([
+            FindPackageShare('iiwa_bringup'),
+            '/launch',
+            '/iiwa_planning.launch.py'
+        ]),
         launch_arguments={
             'description_package': description_package,
             'description_file': description_file,
@@ -231,13 +234,18 @@ def generate_launch_description():
             'start_rviz': start_rviz,
             'base_frame_file': base_frame_file,
             'namespace': namespace,
+            'use_sim': use_sim,
         }.items(),
         condition=IfCondition(use_planning),
     )
 
     # Running with Moveit2 servoing
     iiwa_servoing_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/iiwa_servoing.launch.py']),
+        PythonLaunchDescriptionSource([
+            FindPackageShare('iiwa_bringup'),
+            '/launch',
+            '/iiwa_servoing.launch.py'
+        ]),
         launch_arguments={
             'description_package': description_package,
             'description_file': description_file,
