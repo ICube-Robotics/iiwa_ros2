@@ -234,7 +234,7 @@ def generate_launch_description():
             'start_rviz': start_rviz,
             'base_frame_file': base_frame_file,
             'namespace': namespace,
-            'use_sim' : use_sim,
+            'use_sim': use_sim,
         }.items(),
         condition=IfCondition(use_planning),
     )
@@ -244,7 +244,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([
             FindPackageShare('iiwa_bringup'),
             '/launch',
-            '/iiwa_servoing.launch.py'    
+            '/iiwa_servoing.launch.py'
         ]),
         launch_arguments={
             'description_package': description_package,
