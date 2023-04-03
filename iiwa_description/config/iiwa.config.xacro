@@ -12,7 +12,7 @@
     <xacro:arg name="command_interface" default="position" />
 
     <!-- Import iiwa urdf file -->
-    <xacro:include filename="$(find iiwa_description)/urdf/iiwa14.urdf.xacro" />
+    <xacro:include filename="$(find iiwa_description)/urdf/iiwa7.urdf.xacro" />
 
     <!-- Import iiwa ros2_control description -->
     <xacro:include filename="$(find iiwa_description)/ros2_control/iiwa.r2c_hardware.xacro" />
