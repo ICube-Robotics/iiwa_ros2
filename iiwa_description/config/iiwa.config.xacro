@@ -4,9 +4,9 @@
 
     <!-- Enable setting arguments from the launch file -->
     <xacro:arg name="use_sim" default="false" />
-    <xacro:arg name="use_fake_hardware" default="true" />
+    <xacro:arg name="use_fake_hardware" default="false" />
     <xacro:arg name="prefix" default="" />
-    <xacro:arg name="robot_ip" default="192.170.10.2" />
+    <xacro:arg name="robot_ip" default="172.30.0.147" />
     <xacro:arg name="robot_port" default="30200" />
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
     <xacro:arg name="command_interface" default="position" />
