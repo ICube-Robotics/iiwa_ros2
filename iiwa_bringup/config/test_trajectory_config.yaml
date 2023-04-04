@@ -1,4 +1,4 @@
-publisher_joint_trajectory_controller:
+publisher_joint_trajectory_position_controller:
   ros__parameters:
 
     controller_name: "iiwa_arm_controller"

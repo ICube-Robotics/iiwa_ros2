@@ -1,0 +1,291 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="iiwa14" params="parent prefix *origin">
+  <xacro:property name="PI" value="3.1415926535897931"/>
+    <material name="Black">
+    <color rgba="0.0 0.0 0.0 .6"/>
+  </material>
+
+  <material name="Blue">
+    <color rgba="0.0 0.0 0.8 1.0"/>
+  </material>
+
+  <material name="Green">
+    <color rgba="0.0 0.8 0.0 1.0"/>
+  </material>
+
+  <material name="Grey">
+    <color rgba="0.4 0.4 0.4 1.0"/>
+  </material>
+
+  <material name="Orange">
+    <color rgba="${255/255} ${108/255} ${10/255} .6"/>
+  </material>
+
+  <material name="Brown">
+    <color rgba="${222/255} ${207/255} ${195/255} 1.0"/>
+  </material>
+
+  <material name="Red">
+    <color rgba="0.8 0.0 0.0 1.0"/>
+  </material>
+
+  <material name="White">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+
+
+  <link name="${prefix}iiwa_base" type="fixed"/>
+
+  <joint name="${prefix}iiwa_root_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${prefix}iiwa_base"/>
+  </joint>
+
+  <joint name="${prefix}iiwa_base_joint" type="fixed">
+      <origin rpy="0.0 0 0" xyz="0 0 0"/>
+      <parent link="${prefix}iiwa_base"/>
+      <child link="${prefix}link_0"/>
+  </joint>
+
+  <link name="${prefix}link_0">
+  <inertial>
+        <origin xyz="-0.1 0 0.07" rpy="0 0 0"/>
+        <mass value="5"/>
+        <inertia ixx="0.05"  ixy="0"  ixz="0" iyy="0.06" iyz="0" izz="0.03" />
+    </inertial>
+      
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_0.stl"/>
+      </geometry>
+      <material name="Grey"/>
+    </visual>
+      
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_0.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </collision>
+  </link>
+  <link name="${prefix}link_1">
+       <inertial>
+        <origin xyz="0 -0.03 0.12" rpy="0 0 0"/>
+        <mass value="3.4525"/>
+        <inertia ixx="0.02183"  ixy="0"  ixz="0" iyy="0.007703" iyz="-0.003887" izz="0.02083" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0.0075" rpy="0 0 0"/>
+                <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_1.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_1.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </collision>
+  </link>
+  <link name="${prefix}link_2">
+       <inertial>
+        <origin xyz="0.0003 0.059 0.042" rpy="0 0 0"/>
+        <mass value="3.4821"/>
+        <inertia ixx="0.02076"  ixy="0"  ixz="-0.003626" iyy="0.02179" iyz="0" izz="0.00779" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_2.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </visual>
+      
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_2.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </collision>
+  </link>
+  <link name="${prefix}link_3">
+        <inertial>
+        <origin xyz="0 0.03 0.13" rpy="0 0 0"/>
+        <mass value="4.05623"/>
+        <inertia ixx="0.03204"  ixy="0"  ixz="0" iyy="0.00972" iyz="0.006227" izz="0.03042" />
+      </inertial>
+      
+      <visual>
+        <origin xyz="0 0 -0.026" rpy="0 0 0"/>        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_3.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+      
+      <collision>
+        <origin xyz="0 0 -0.026" rpy="0 0 0"/>        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_3.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </collision>
+      
+  </link>
+  <link name="${prefix}link_4">
+    <inertial>
+        <origin xyz="0 0.067 0.034" rpy="0 0 0"/>
+        <mass value="3.4822"/>
+        <inertia ixx="0.02178"  ixy="0"  ixz="0" iyy="0.02075" iyz="-0.003625" izz="0.007785" />
+      </inertial>
+      
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_4.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </visual>
+      
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_4.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </collision>
+  </link>
+  <link name="${prefix}link_5">
+   <inertial>
+        <origin xyz="0.0001 0.021 0.076" rpy="0 0 0"/>
+        <mass value="2.1633"/>
+        <inertia ixx="0.01287"  ixy="0"  ixz="0" iyy="0.005708" iyz="-0.003946" izz="0.01112" />
+      </inertial>
+      
+      <visual>
+        <origin xyz="0 0 -0.026" rpy="0 0 0"/>        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_5.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+      
+      <collision>
+        <origin xyz="0 0 -0.026" rpy="0 0 0"/>        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_5.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </collision>
+  </link>
+  <link name="${prefix}link_6">
+       <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="2.3466"/>
+        <inertia ixx="0.006509"  ixy="0"  ixz="0" iyy="0.006259" iyz="0.00031891" izz="0.004527" />
+      </inertial>
+      
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_6.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </visual>
+      
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_6.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </collision>
+  </link>
+  <link name="${prefix}link_7">
+         <inertial>
+        <origin xyz="0 0 0.02" rpy="0 0 0"/>
+        <mass value="3.129"/>
+        <inertia ixx="0.01464"  ixy="0.0005912"  ixz="0" iyy="0.01465" iyz="0" izz="0.002872" />
+      </inertial>
+      
+      <visual>
+        <origin xyz="0 0 -0.0005" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_7.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </visual>
+      
+      <collision>
+        <origin xyz="0 0 -0.0005" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_7.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </collision>
+  </link>
+  <link name="${prefix}tool0"/>
+
+  <joint name="${prefix}joint_a1" type="revolute">
+      <origin rpy="0 0 0" xyz="0 0 0.15"/>
+      <parent link="${prefix}link_0"/>
+      <child link="${prefix}link_1"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="320" lower="-2.9668" upper="2.9668" velocity="1.4834"/>
+  </joint>
+  <joint name="${prefix}joint_a2" type="revolute">
+      <origin xyz="0 0 0.19" rpy="${PI / 2}   0 ${PI}"/>
+      <parent link="${prefix}link_1"/>
+      <child link="${prefix}link_2"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="320" lower="-2.0942" upper="2.0942" velocity="1.4834"/>
+  </joint>
+  <joint name="${prefix}joint_a3" type="revolute">
+      <origin xyz="0 0.21 0" rpy="${PI / 2} 0 ${PI}"/>
+      <parent link="${prefix}link_2"/>
+      <child link="${prefix}link_3"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="176" lower="-2.9668" upper="2.9668" velocity="1.7452"/>
+  </joint>
+  <joint name="${prefix}joint_a4" type="revolute">
+      <origin xyz="0 0 0.19" rpy="${PI / 2} 0 0"/>
+            <parent link="${prefix}link_3"/>
+      <child link="${prefix}link_4"/>
+      <axis xyz="0 -1 0"/>
+      <limit effort="176" lower="-2.0942" upper="2.0942" velocity="1.3089"/>
+  </joint>
+  <joint name="${prefix}joint_a5" type="revolute">
+      <origin xyz="0 0.21 0" rpy="${-PI / 2} ${PI} 0"/>
+      <parent link="${prefix}link_4"/>
+      <child link="${prefix}link_5"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="110" lower="-2.9668" upper="2.9668" velocity="2.2688"/>
+  </joint>
+  <joint name="${prefix}joint_a6" type="revolute">
+<origin xyz="0 0.06070 0.19" rpy="${PI / 2} 0 0"/>
+      <parent link="${prefix}link_5"/>
+      <child link="${prefix}link_6"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="40" lower="-2.0942" upper="2.0942" velocity="2.356"/>
+  </joint>
+  <joint name="${prefix}joint_a7" type="revolute">
+      <origin xyz="0 0.081 0.06070" rpy="${- PI / 2} ${PI} 0"/>
+            <parent link="${prefix}link_6"/>
+      <child link="${prefix}link_7"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="40" lower="-3.0541" upper="3.0541" velocity="2.356"/>
+  </joint>
+  <joint name="${prefix}joint_a7-tool0" type="fixed">
+      <origin rpy="0 0 0" xyz="0 0 0.45"/>
+      <parent link="${prefix}link_7"/>
+      <child link="${prefix}tool0"/> 
+      <axis xyz="0 0 0"/>
+  </joint>
+
+  </xacro:macro>
+</robot>
+
