@@ -16,8 +16,8 @@ import os
 
 from ament_index_python.packages import get_package_share_directory, get_package_prefix
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler, SetEnvironmentVariable
-from launch.event_handlers import OnProcessExit
+from launch.actions import ExecuteProcess, DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler, SetEnvironmentVariable
+from launch.event_handlers import OnProcessExit, OnProcessIO, OnProcessStart
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -25,6 +25,7 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    
     set_ign_path = SetEnvironmentVariable(
         name = 'IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
         value = os.path.join(
@@ -38,9 +39,13 @@ def generate_launch_description():
         'ignition/worlds',
         'empty.sdf')
 
-    ignition = ExecuteProcess(
-        cmd = ['ign', 'gazebo', iiwa_simulation_world],
-        output = 'screen'
+    ignition = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [os.path.join(get_package_share_directory('ros_ign_gazebo'),
+                          'launch',
+                          'ign_gazebo.launch.py')]
+        ),
+        launch_arguments=[('ign_args', [' -r -v 4 ' + iiwa_simulation_world])]
     )
 
     # Get URDF via xacro
@@ -55,7 +60,8 @@ def generate_launch_description():
                     'iiwa7.config.xacro',
                 ]
             ),
-            ' use_sim:=true',
+            ' ',
+            'use_sim:=true',
         ]
     )
     robot_description = {'robot_description': robot_description_content}
@@ -70,20 +76,22 @@ def generate_launch_description():
     spawn_entity = Node(
         package='ros_ign_gazebo',
         executable='create',
-        arguments=['-world', 'empty', '-name', 'iiwa7', '-string', robot_description_content],
+        arguments=['-world', 'empty',
+                   '-name', 'iiwa7',
+                   '-string', robot_description_content],
         output='screen',
     )
-    spawn_jst_controller = Node(
-        package='controller_manager',
-        executable='spawner.py',
-        arguments=['joint_state_broadcaster'],
-        output='screen',
+
+    load_jst_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+             'joint_state_broadcaster'],
+        output='screen'
     )
-    spawn_arm_controller = Node(
-        package='controller_manager',
-        executable='spawner.py',
-        arguments=['iiwa_arm_controller'],
-        output='screen',
+
+    load_arm_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+             'iiwa_arm_controller'],
+        output='screen'
     )
 
     return LaunchDescription(
@@ -95,13 +103,13 @@ def generate_launch_description():
             RegisterEventHandler(
                 event_handler=OnProcessExit(
                     target_action=spawn_entity,
-                    on_exit=[spawn_jst_controller],
+                    on_exit=[load_jst_controller],
                 )
             ),
             RegisterEventHandler(
                 event_handler=OnProcessExit(
-                    target_action=spawn_jst_controller,
-                    on_exit=[spawn_arm_controller],
+                    target_action=load_jst_controller,
+                    on_exit=[load_arm_controller],
                 )
             ),
         ]

@@ -4,8 +4,6 @@
   <!-- ros_control plugin -->
   <gazebo>
     <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-      <!-- <robot_param>robot_description</robot_param>
-      <robot_param_node>robot_state_publisher</robot_param_node> -->
       <parameters>$(find iiwa_description)/config/iiwa_controllers.yaml</parameters>
     </plugin>
   </gazebo>
