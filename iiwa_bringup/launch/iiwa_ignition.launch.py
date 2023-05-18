@@ -62,6 +62,15 @@ def generate_launch_description():
             ),
             ' ',
             'use_sim:=true',
+            ' ',
+            'initial_positions_file:=',
+            PathJoinSubstitution(
+                [
+                    FindPackageShare('iiwa_description'),
+                    'config',
+                    'initial_positions.yaml',
+                ]
+            ),
         ]
     )
     robot_description = {'robot_description': robot_description_content}
