@@ -14,8 +14,8 @@
             <xacro:unless value="$(arg use_sim)">
                 <hardware>
                 <xacro:if value="${use_fake_hardware}">
-                    <plugin>fake_components/GenericSystem</plugin>
-                        <param name="state_following_offset">0.0</param>
+                    <plugin>mock_components/GenericSystem</plugin>
+                    <param name="calculate_dynamics">true</param>
                 </xacro:if>
                 <xacro:unless value="${use_fake_hardware}">
                     <plugin>iiwa_hardware/IiwaFRIHardwareInterface</plugin>
