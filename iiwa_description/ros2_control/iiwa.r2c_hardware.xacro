@@ -14,8 +14,8 @@
             <xacro:unless value="$(arg use_sim)">
                 <hardware>
                 <xacro:if value="${use_fake_hardware}">
-                    <plugin>fake_components/GenericSystem</plugin>
-                        <param name="state_following_offset">0.0</param>
+                    <plugin>mock_components/GenericSystem</plugin>
+                    <param name="calculate_dynamics">true</param>
                 </xacro:if>
                 <xacro:unless value="${use_fake_hardware}">
                     <plugin>iiwa_hardware/IiwaFRIHardwareInterface</plugin>
@@ -140,13 +140,27 @@
                 </state_interface>
             </joint>
             <sensor name="${prefix}external_torque_sensor">
-                <state_interface name="external_torque.joint_a1"/>
-                <state_interface name="external_torque.joint_a2"/>
-                <state_interface name="external_torque.joint_a3"/>
-                <state_interface name="external_torque.joint_a4"/>
-                <state_interface name="external_torque.joint_a5"/>
-                <state_interface name="external_torque.joint_a6"/>
-                <state_interface name="external_torque.joint_a7"/>
+                <state_interface name="external_torque.joint_a1">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="external_torque.joint_a2">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="external_torque.joint_a3">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="external_torque.joint_a4">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="external_torque.joint_a5">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="external_torque.joint_a6">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="external_torque.joint_a7">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
             </sensor>
         </ros2_control>
 
