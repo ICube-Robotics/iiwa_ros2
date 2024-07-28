@@ -28,7 +28,7 @@ endif()
 # Install
 ################################################################################
 install(
-  DIRECTORY urdf meshes gazebo rviz ros2_control config moveit2 srdf
+  DIRECTORY urdf meshes gazebo ignition rviz ros2_control config moveit2
   DESTINATION share/${PROJECT_NAME}
 )
 

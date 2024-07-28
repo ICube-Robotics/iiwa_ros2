@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot>
+
+  <!-- ros_control plugin -->
+  <gazebo>
+    <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+      <parameters>$(find iiwa_description)/config/iiwa_controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+  <!-- color -->
+  <gazebo reference="link_7">
+    <material>Gazebo/Gray</material>
+  </gazebo>
+
+</robot>
