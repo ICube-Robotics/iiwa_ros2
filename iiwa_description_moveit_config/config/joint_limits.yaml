@@ -11,33 +11,47 @@ joint_limits:
     max_velocity: 1.4835
     has_acceleration_limits: true
     max_acceleration: 3.75 # acceleration values are incorrect!
+    has_jerk_limits: true
+    max_jerk: 300.0
   joint_a2:
     has_velocity_limits: true
     max_velocity: 1.4835
     has_acceleration_limits: true
     max_acceleration: 1.875
+    has_jerk_limits: true
+    max_jerk: 300.0
   joint_a3:
     has_velocity_limits: true
     max_velocity: 1.7453
     has_acceleration_limits: true
     max_acceleration: 2.5
+    has_jerk_limits: true
+    max_jerk: 300.0
   joint_a4:
     has_velocity_limits: true
     max_velocity: 1.309
     has_acceleration_limits: true
     max_acceleration: 3.125
+    has_jerk_limits: true
+    max_jerk: 300.0
   joint_a5:
     has_velocity_limits: true
     max_velocity: 2.2689
     has_acceleration_limits: true
     max_acceleration: 3.75
+    has_jerk_limits: true
+    max_jerk: 300.0
   joint_a6:
     has_velocity_limits: true
     max_velocity: 2.3562
     has_acceleration_limits: true
     max_acceleration: 5.0
+    has_jerk_limits: true
+    max_jerk: 300.0
   joint_a7:
     has_velocity_limits: true
     max_velocity: 2.3562
     has_acceleration_limits: true
     max_acceleration: 5.0
+    has_jerk_limits: true
+    max_jerk: 300.0

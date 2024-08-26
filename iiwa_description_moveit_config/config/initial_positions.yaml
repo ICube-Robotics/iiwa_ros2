@@ -1,0 +1,10 @@
+# Default initial positions for iiwa's ros2_control fake system
+
+initial_positions:
+  joint_a1: 0
+  joint_a2: 0
+  joint_a3: 0
+  joint_a4: 0
+  joint_a5: 0
+  joint_a6: 0
+  joint_a7: 0

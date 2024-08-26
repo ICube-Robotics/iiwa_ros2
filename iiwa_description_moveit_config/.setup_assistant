@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: iiwa_description
+    relative_path: config/iiwa.config.xacro
+  srdf:
+    relative_path: config/iiwa.srdf
+  package_settings:
+    author_name: Thibault Poignonec
+    author_email: tpoignonec@unistra.fr
+    generated_timestamp: 1724672807
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

@@ -1,22 +1,17 @@
 # This config file is used by ros2_control
 controller_manager:
   ros__parameters:
-    update_rate: 200  # Hz
+    update_rate: 100  # Hz
 
     iiwa_arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
+
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-
-panda_arm_controller:
+iiwa_arm_controller:
   ros__parameters:
-    command_interfaces:
-      - position
-    state_interfaces:
-      - position
-      - velocity
     joints:
       - joint_a1
       - joint_a2
@@ -25,4 +20,9 @@ panda_arm_controller:
       - joint_a5
       - joint_a6
       - joint_a7
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
     allow_nonzero_velocity_at_trajectory_end: true
