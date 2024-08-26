@@ -19,13 +19,15 @@
     <xacro:property name="description_package" value="$(arg description_package)"/>
 
     <!-- Import iiwa urdf file -->
-    <xacro:include filename="$(find ${description_package})/urdf/iiwa.urdf.xacro" />
+    <xacro:include filename="$(find iiwa_description)/urdf/iiwa14.urdf.xacro" />
+
+    <!-- Import all Gazebo-customization elements -->
+    <xacro:include filename="$(find iiwa_description)/gazebo/iiwa.gazebo"/>
 
     <!-- Import iiwa ros2_control description -->
     <xacro:include filename="$(find ${description_package})/ros2_control/iiwa.r2c_hardware.xacro" />
 
-    <!-- Import all Gazebo-customization elements -->
-    <xacro:include filename="$(find ${description_package})/gazebo/iiwa.gazebo.xacro"/>
+
 
     <!-- Used for fixing robot -->
     <link name="world"/>
