@@ -70,7 +70,7 @@ int main(int argc, char ** argv)
 
   // Declare parameters
   node->declare_parameter("base_frame", "iiwa_base");
-  node->declare_parameter("end_effector_frame", "iiwa_tool");
+  node->declare_parameter("end_effector_frame", "tool0");
 
   std::string base_frame = node->get_parameter("base_frame").as_string();
   std::string end_effector_frame = node->get_parameter("end_effector_frame").as_string();
@@ -176,11 +176,12 @@ int main(int argc, char ** argv)
         robot_state->setJointGroupVelocities(joint_model_group, joint_cmd_rolling_window.back().velocities);
       }
     }
-
-    servo_rate.sleep();
   }
+
+  servo_rate.reset();
 
   RCLCPP_INFO_STREAM(LOGGER, "REACHED : " << stop_tracking);
   RCLCPP_INFO(LOGGER, "Exiting demo.");
+
   rclcpp::shutdown();
 }

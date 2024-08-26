@@ -47,17 +47,14 @@ endforeach()
 add_executable(pose_tracking_servo_node src/pose_tracking_servo.cpp)
 ament_target_dependencies(pose_tracking_servo_node ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
-# Install all targets
+# Install Binaries
 install(
-  TARGETS
-    pose_tracking_servo_node
-  EXPORT export_${PROJECT_NAME}
-  LIBRARY DESTINATION lib
+  TARGETS pose_tracking_servo_node
   ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
-ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 if(BUILD_TESTING)
