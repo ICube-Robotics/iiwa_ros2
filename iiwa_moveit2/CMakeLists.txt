@@ -15,49 +15,42 @@ endif()
 
 
 # Common cmake code applied to all moveit packages
+# Common cmake code applied to all moveit packages
 find_package(moveit_common REQUIRED)
 moveit_package()
 
-find_package(ament_cmake REQUIRED)
-find_package(control_msgs REQUIRED)
-find_package(moveit_core REQUIRED)
-find_package(moveit_servo REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(pluginlib REQUIRED)
-
-
 set(THIS_PACKAGE_INCLUDE_DEPENDS
-  ament_cmake
-  rclcpp
-  moveit_core
-  pluginlib
-  control_msgs
-  moveit_servo
-)
+    control_msgs
+    geometry_msgs
+    moveit_servo
+    moveit_core
+    moveit_msgs
+    moveit_ros_planning
+    moveit_ros_planning_interface
+    pluginlib
+    rclcpp
+    rclcpp_components
+    realtime_tools
+    sensor_msgs
+    std_msgs
+    std_srvs
+    tf2_eigen
+    trajectory_msgs)
 
-# Add executable for using a controller
-add_library(${SERVO_CONTROLLER_INPUT} SHARED src/joystick_servo.cpp)
-ament_target_dependencies(${SERVO_CONTROLLER_INPUT} ${THIS_PACKAGE_INCLUDE_DEPENDS})
-rclcpp_components_register_nodes(${SERVO_CONTROLLER_INPUT} "iiwa_servo::JoyToServoPub")
+find_package(ament_cmake REQUIRED)
+find_package(generate_parameter_library REQUIRED)
+foreach(dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
+  find_package(${dependency} REQUIRED)
+endforeach()
 
 # Add executable for pose tracking
 add_executable(pose_tracking_servo_node src/pose_tracking_servo.cpp)
 ament_target_dependencies(pose_tracking_servo_node ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
-# Add executable for pose tracking
-add_executable(servo_node src/servo_node.cpp)
-ament_target_dependencies(servo_node ${THIS_PACKAGE_INCLUDE_DEPENDS})
-
-# install executables
-install(TARGETS
-  pose_tracking_servo_node
-  servo_node
-  DESTINATION lib/${PROJECT_NAME})
-
-# Install Libraries
+# Install all targets
 install(
   TARGETS
-    ${SERVO_CONTROLLER_INPUT}
+    pose_tracking_servo_node
   EXPORT export_${PROJECT_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

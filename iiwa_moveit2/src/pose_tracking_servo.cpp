@@ -1,4 +1,4 @@
-// Copyright 2022, ICube Laboratory, University of Strasbourg
+// Copyright 2024, ICube Laboratory, University of Strasbourg
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Adapted from https://github.com/ros-planning/moveit2/blob/foxy/moveit_ros/moveit_servo/src/cpp_interface_demo/pose_tracking_demo.cpp
-#include <moveit_servo/pose_tracking.h>
-#include <moveit_servo/servo.h>
-#include <moveit_servo/status_codes.h>
-#include <moveit_servo/servo_parameters.h>
-#include <moveit_servo/make_shared_from_pool.h>
-#include <thread>
+// Adapted from https://github.com/moveit/moveit2/blob/main/moveit_ros/moveit_servo/demos/cpp_interface/demo_pose.cpp
+
+#include <atomic>
+#include <chrono>
+#include <moveit_servo/servo.hpp>
+#include <moveit_servo/utils/common.hpp>
+#include <mutex>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2_ros/transform_listener.h>
+#include <moveit/utils/logger.hpp>
+
 #include <std_msgs/msg/int8.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
-static const rclcpp::Logger LOGGER = rclcpp::get_logger("pose_tracking_servo_node");
+static const std::string NODE_NAME = "pose_tracking_servo_node";
+static const rclcpp::Logger LOGGER = rclcpp::get_logger(NODE_NAME);
+
+using namespace moveit_servo;
 
 // Class for monitoring status of moveit_servo
 class StatusMonitor
@@ -57,108 +65,122 @@ private:
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("pose_tracking_servo_node");
+  rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared(NODE_NAME);
+  moveit::setNodeLoggerName(NODE_NAME);
 
-  rclcpp::executors::SingleThreadedExecutor executor;
-  executor.add_node(node);
-  std::thread executor_thread([&executor]() {executor.spin();});
+  // Declare parameters
+  node->declare_parameter("base_frame", "iiwa_base");
+  node->declare_parameter("end_effector_frame", "iiwa_tool");
 
-  auto servo_parameters = moveit_servo::ServoParameters::makeServoParameters(node);
-  if (servo_parameters == nullptr) {
-    RCLCPP_FATAL(LOGGER, "Could not get servo parameters!");
-    exit(EXIT_FAILURE);
+  std::string base_frame = node->get_parameter("base_frame").as_string();
+  std::string end_effector_frame = node->get_parameter("end_effector_frame").as_string();
+
+  if (base_frame.empty() || end_effector_frame.empty()) {
+    RCLCPP_ERROR(LOGGER, "Parameters 'base_frame' and 'end_effector_frame' must be specified.");
+    return EXIT_FAILURE;
   }
 
-  // Load the planning scene monitor
-  planning_scene_monitor::PlanningSceneMonitorPtr planning_scene_monitor;
-  planning_scene_monitor = std::make_shared<planning_scene_monitor::PlanningSceneMonitor>(
-    node,
-    "robot_description");
-  if (!planning_scene_monitor->getPlanningScene()) {
-    RCLCPP_ERROR_STREAM(LOGGER, "Error in setting up the PlanningSceneMonitor.");
-    exit(EXIT_FAILURE);
+  // Get the servo parameters.
+  const std::string param_namespace = "moveit_servo";
+  const std::shared_ptr<const servo::ParamListener> servo_param_listener =
+      std::make_shared<const servo::ParamListener>(node, param_namespace);
+  const servo::Params servo_params = servo_param_listener->get_params();
+
+  // The publisher to send trajectory message to the robot controller.
+  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectory_outgoing_cmd_pub =
+      node->create_publisher<trajectory_msgs::msg::JointTrajectory>(servo_params.command_out_topic,
+                                                                         rclcpp::SystemDefaultsQoS());
+  // Create the servo object
+  const planning_scene_monitor::PlanningSceneMonitorPtr planning_scene_monitor =
+      createPlanningSceneMonitor(node, servo_params);
+  Servo servo = Servo(node, servo_param_listener, planning_scene_monitor);
+
+  // Helper function to get the current pose of a specified frame.
+  const auto get_current_pose = [](const std::string& target_frame, const moveit::core::RobotStatePtr& robot_state) {
+    return robot_state->getGlobalLinkTransform(target_frame);
+  };
+
+  // Wait for some time, so that the planning scene is loaded in rviz.
+  // This is just for convenience, should not be used for sync in real application.
+  std::this_thread::sleep_for(std::chrono::seconds(3));
+
+  // Get the robot state and joint model group info.
+  auto robot_state = planning_scene_monitor->getStateMonitor()->getCurrentState();
+  const moveit::core::JointModelGroup* joint_model_group =
+      robot_state->getJointModelGroup(servo_params.move_group_name);
+
+  // Set the command type for servo.
+  servo.setCommandType(CommandType::POSE);
+
+  // The dynamically updated target pose.
+  PoseCommand target_pose;
+  target_pose.frame_id = base_frame;
+
+  // Initializing the target pose as end effector pose, this can be any pose.
+  target_pose.pose = get_current_pose(end_effector_frame, robot_state);
+
+  // servo loop will exit upon reaching this pose.
+  Eigen::Isometry3d terminal_pose = target_pose.pose;
+  terminal_pose.rotate(Eigen::AngleAxisd(M_PI / 4, Eigen::Vector3d::UnitZ()));
+  terminal_pose.translate(Eigen::Vector3d(0.0, 0.0, -0.1));
+
+  // The target pose (frame being tracked) moves by this step size each iteration.
+  Eigen::Vector3d linear_step_size{ 0.0, 0.0, -0.001 };
+  Eigen::AngleAxisd angular_step_size(0.01, Eigen::Vector3d::UnitZ());
+
+  RCLCPP_INFO_STREAM(LOGGER, servo.getStatusMessage());
+
+  rclcpp::WallRate servo_rate(1 / servo_params.publish_period);
+
+  // create command queue to build trajectory message and add current robot state
+  std::deque<KinematicState> joint_cmd_rolling_window;
+  KinematicState current_state = servo.getCurrentRobotState();
+  updateSlidingWindow(current_state, joint_cmd_rolling_window, servo_params.max_expected_latency, node->now());
+
+  bool satisfies_linear_tolerance = false;
+  bool satisfies_angular_tolerance = false;
+  bool stop_tracking = false;
+  while (!stop_tracking && rclcpp::ok())
+  {
+    // check if goal reached
+    target_pose.pose = get_current_pose(end_effector_frame, robot_state);
+    satisfies_linear_tolerance |= target_pose.pose.translation().isApprox(terminal_pose.translation(),
+                                                                          servo_params.pose_tracking.linear_tolerance);
+    satisfies_angular_tolerance |=
+        target_pose.pose.rotation().isApprox(terminal_pose.rotation(), servo_params.pose_tracking.angular_tolerance);
+    stop_tracking = satisfies_linear_tolerance && satisfies_angular_tolerance;
+
+    // Dynamically update the target pose.
+    if (!satisfies_linear_tolerance)
+    {
+      target_pose.pose.translate(linear_step_size);
+    }
+    if (!satisfies_angular_tolerance)
+    {
+      target_pose.pose.rotate(angular_step_size);
+    }
+
+    // get next servo command
+    KinematicState joint_state = servo.getNextJointState(robot_state, target_pose);
+    StatusCode status = servo.getStatus();
+    if (status != StatusCode::INVALID)
+    {
+      updateSlidingWindow(joint_state, joint_cmd_rolling_window, servo_params.max_expected_latency, node->now());
+      if (const auto msg = composeTrajectoryMessage(servo_params, joint_cmd_rolling_window))
+      {
+        trajectory_outgoing_cmd_pub->publish(msg.value());
+      }
+      if (!joint_cmd_rolling_window.empty())
+      {
+        robot_state->setJointGroupPositions(joint_model_group, joint_cmd_rolling_window.back().positions);
+        robot_state->setJointGroupVelocities(joint_model_group, joint_cmd_rolling_window.back().velocities);
+      }
+    }
+
+    servo_rate.sleep();
   }
 
-  planning_scene_monitor->providePlanningSceneService();
-  planning_scene_monitor->startSceneMonitor();
-  planning_scene_monitor->startWorldGeometryMonitor(
-    planning_scene_monitor::PlanningSceneMonitor::DEFAULT_COLLISION_OBJECT_TOPIC,
-    planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_WORLD_TOPIC,
-    false /* skip octomap monitor */);
-  planning_scene_monitor->startStateMonitor(servo_parameters->joint_topic);
-  planning_scene_monitor->startPublishingPlanningScene(
-    planning_scene_monitor::PlanningSceneMonitor::UPDATE_SCENE);
-
-  // Wait for Planning Scene Monitor to setup
-  if (!planning_scene_monitor->waitForCurrentRobotState(node->now(), 5.0 /* seconds */)) {
-    RCLCPP_ERROR_STREAM(LOGGER, "Error waiting for current robot state in PlanningSceneMonitor.");
-    exit(EXIT_FAILURE);
-  }
-
-  // Create the pose tracker
-  moveit_servo::PoseTracking tracker(node, servo_parameters, planning_scene_monitor);
-
-  // Make a publisher for sending pose commands
-  auto target_pose_pub =
-    node->create_publisher<geometry_msgs::msg::PoseStamped>("target_pose", 1 /* queue */);
-
-  // Subscribe to servo status (and log it when it changes)
-  StatusMonitor status_monitor(node, servo_parameters->status_topic);
-
-  Eigen::Vector3d lin_tol{0.001, 0.001, 0.001};
-  double rot_tol = 0.01;
-
-  // Get the current EE transform
-  geometry_msgs::msg::TransformStamped current_ee_tf;
-  tracker.getCommandFrameTransform(current_ee_tf);
-
-  // Convert it to a Pose
-  geometry_msgs::msg::PoseStamped target_pose;
-  target_pose.header.frame_id = current_ee_tf.header.frame_id;
-  target_pose.pose.position.x = current_ee_tf.transform.translation.x;
-  target_pose.pose.position.y = current_ee_tf.transform.translation.y;
-  target_pose.pose.position.z = current_ee_tf.transform.translation.z;
-  target_pose.pose.orientation = current_ee_tf.transform.rotation;
-
-  // Modify it a little bit
-  target_pose.pose.position.x += 0.1;
-
-  // resetTargetPose() can be used to clear the target pose and wait for a new one,
-  // e.g. when moving between multiple waypoints
-
-  tracker.resetTargetPose();
-
-  // Publish target pose
-  target_pose.header.stamp = node->now();
-  target_pose_pub->publish(target_pose);
-
-  // Run the pose tracking in a new thread
-  std::thread move_to_pose_thread([&tracker, &lin_tol, &rot_tol] {
-      moveit_servo::PoseTrackingStatusCode tracking_status =
-      tracker.moveToPose(lin_tol, rot_tol, 0.1 /* target pose timeout */);
-      RCLCPP_INFO_STREAM(
-        LOGGER, "Pose tracker exited with status: "
-          << moveit_servo::POSE_TRACKING_STATUS_CODE_MAP.at(tracking_status));
-    });
-
-  rclcpp::Rate loop_rate(1000);
-  for (size_t i = 0; i < 500; ++i) {
-    // Modify the pose target a little bit each cycle
-    // This is a dynamic pose target
-    target_pose.pose.position.z += 0.0004;
-    target_pose.header.stamp = node->now();
-    target_pose_pub->publish(target_pose);
-
-    loop_rate.sleep();
-  }
-
-  // Make sure the tracker is stopped and clean up
-  move_to_pose_thread.join();
-
-  // Kill executor thread before shutdown
-  executor.cancel();
-  executor_thread.join();
-
+  RCLCPP_INFO_STREAM(LOGGER, "REACHED : " << stop_tracking);
+  RCLCPP_INFO(LOGGER, "Exiting demo.");
   rclcpp::shutdown();
-  return EXIT_SUCCESS;
 }
