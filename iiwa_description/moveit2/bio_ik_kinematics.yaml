@@ -1,0 +1,8 @@
+iiwa_arm:
+  kinematics_solver: bio_ik/BioIKKinematicsPlugin
+  kinematics_solver_search_resolution: 0.005
+  kinematics_solver_timeout: 0.05
+  kinematics_solver_attempts: 3
+  mode: gd_c_4
+  dpos: 0.001
+  drot: 0.001

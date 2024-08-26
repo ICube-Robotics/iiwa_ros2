@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: iiwa_description
+    relative_path: urdf/iiwa.urdf
+  SRDF:
+    relative_path: config/iiwa.srdf.xacro
+  CONFIG:
+    author_name: Thibault Poignonec
+    author_email: tpoignonec@unistra.fr
+    generated_timestamp: 1519152260

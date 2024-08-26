@@ -1,0 +1,6 @@
+iiwa_arm:
+  kinematics_solver: trac_ik_kinematics_plugin/TRAC_IKKinematicsPlugin
+  kinematics_solver_timeout: 0.05
+  kinematics_solver_attempts: 3
+  epsilon: 0.00001
+  solve_type: "Speed"
