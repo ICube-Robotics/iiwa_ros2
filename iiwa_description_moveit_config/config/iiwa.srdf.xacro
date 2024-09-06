@@ -8,6 +8,6 @@
   <xacro:property name="description_package" value="$(arg description_package)"/>
   <xacro:include filename="$(find ${description_package})/srdf/iiwa_macro.srdf.xacro"/>
 
-  <xacro:iiwa_srdf name="$(arg name)" prefix="$(arg prefix)"/>
+  <xacro:iiwa_srdf name="$(arg name)" prefix="$(arg prefix)" tip_link="tool0"/>
 
 </robot>
