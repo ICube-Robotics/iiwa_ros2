@@ -151,7 +151,7 @@ def generate_launch_description():
         package="moveit_servo",
         executable="servo_node",
         name="servo_node",
-        arguments=['--ros-args', '--log-level', 'DEBUG'],
+        arguments=['--ros-args', '--log-level', 'INFO'],
         parameters=[
             servo_params,
             acceleration_filter_update_period,
