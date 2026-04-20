@@ -29,9 +29,9 @@ def generate_launch_description():
     return LaunchDescription(
         [
             Node(
-                package='ros2_controllers_test_nodes',
-                executable='publisher_joint_trajectory_controller',
-                name='publisher_joint_trajectory_controller',
+                package='ros2_control_test_nodes',
+                executable='publisher_joint_trajectory_position_controller',
+                name='publisher_joint_trajectory_position_controller',
                 parameters=[position_goals],
                 output="both",
             )
