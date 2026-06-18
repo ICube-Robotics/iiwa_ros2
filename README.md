@@ -21,9 +21,9 @@ ROS2 stack for KUKA iiwa 14 collaborative robots. This package contains launch a
 - `iiwa_moveit2` - some tools for Moveit2 integration
 
 ## Getting Started
-***Required setup : Ubuntu 22.04 LTS***
+***Required setup : Ubuntu 24.04 LTS***
 
-1.  Install `ros2` packages. The current development is based of `ros2 humble`. Installation steps are described [here](https://docs.ros.org/en/humble/Installation.html).
+1.  Install `ros2` packages. The current development is based of `ros2 humble`. Installation steps are described [here](https://docs.ros.org/en/jazzy/Installation.html).
 2. Source your `ros2` environment:
     ```shell
     source /opt/ros/humble/setup.bash
